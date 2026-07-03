@@ -4,7 +4,11 @@ const categoryModel = require('../models/categoryModel');
 
 // GET /api/categories
 const getAll = catchAsync(async (req, res) => {
-  const categories = await categoryModel.findAll();
+  const rawCategories = await categoryModel.findAll(req.user.id);
+  const categories = rawCategories.map(cat => ({
+    ...cat,
+    task_count: Number(cat.task_count || 0)
+  }));
   res.status(200).json({ success: true, data: { categories } });
 });
 
