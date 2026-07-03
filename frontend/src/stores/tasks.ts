@@ -53,8 +53,18 @@ export const useTaskStore = defineStore('tasks', () => {
   //     calling this action knows whether to close the modal)
   // -----------------------------------------------------------------------
   async function createTask(_payload: TaskPayload) {
-    // TODO: replace this with a real implementation
-    throw new Error('TODO: implement createTask in stores/tasks.ts')
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.create(_payload)
+      await fetchTasks() // re-fetch so the list (and any task dropdowns) stay in sync
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to create task.'
+      return false
+    } finally {
+      loading.value = false
+    }
   }
 
   // -----------------------------------------------------------------------
@@ -63,7 +73,18 @@ export const useTaskStore = defineStore('tasks', () => {
   // -----------------------------------------------------------------------
   async function updateTask(_id: number, _payload: TaskPayload) {
     // TODO: replace this with a real implementation
-    throw new Error('TODO: implement updateTask in stores/tasks.ts')
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.update(_id, _payload)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to update task.'
+      return false
+    } finally {
+      loading.value = false
+    }
   }
 
   // -----------------------------------------------------------------------
@@ -72,8 +93,18 @@ export const useTaskStore = defineStore('tasks', () => {
   // Remember: this should also re-fetch the list afterwards.
   // -----------------------------------------------------------------------
   async function deleteTask(_id: number) {
-    // TODO: replace this with a real implementation
-    throw new Error('TODO: implement deleteTask in stores/tasks.ts')
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.remove(_id)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to delete task.'
+      return false
+    } finally {
+      loading.value = false
+    }
   }
 
   // Provided for you: a small "quick toggle" action so you can see a
