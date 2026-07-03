@@ -8,11 +8,12 @@ USE taskflow_db;
 
 -- ---------------------------------------------------------------------
 -- Users
+-- All users have password: password123
 -- ---------------------------------------------------------------------
 INSERT INTO users (name, email, password, role) VALUES
-('Admin User', 'admin@taskflow.com', '$2b$10$Bp4.gfTQzPLjwQBDVcBGtet6CmkJh..hRW9e9tgNbbhHO5JQQUJLe', 'admin'),
-('Jane Doe',   'jane@taskflow.com',  '$2b$10$Bp4.gfTQzPLjwQBDVcBGtet6CmkJh..hRW9e9tgNbbhHO5JQQUJLe', 'user'),
-('John Smith', 'john@taskflow.com',  '$2b$10$Bp4.gfTQzPLjwQBDVcBGtet6CmkJh..hRW9e9tgNbbhHO5JQQUJLe', 'user');
+('Admin User', 'admin@taskflow.com', '$2a$10$uKMmYQmo7GWqYuXeOxU5yuKQ.ATjDsg8BUxrSWTb52VISOlTnePXi', 'admin'),
+('Jane Doe',   'jane@taskflow.com',  '$2a$10$40T3tP2s26KKtjMWpSjyRO7qV0RC7mdZ/aAm4kR3eNGJ0b8DQbRA2', 'user'),
+('John Smith', 'john@taskflow.com',  '$2a$10$4aHhB0hrDal1GtlA4Bpmi.tajycAYoKPjlZgHs/r6OIdgZ/zxbkCO', 'user');
 
 -- ---------------------------------------------------------------------
 -- Categories (shared lookup table)

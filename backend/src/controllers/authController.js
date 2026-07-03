@@ -61,3 +61,9 @@ const me = catchAsync(async (req, res, next) => {
 });
 
 module.exports = { register, login, me };
+
+
+
+
+
+

@@ -18,8 +18,9 @@ const pool = mysql.createPool({
   dateStrings: true, // return DATE/DATETIME columns as strings, easier to work with in JS/TS
 });
 
-// Quick sanity check on boot so setup mistakes fail loudly instead of
-// surfacing as a confusing error on the first API request.
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle MySQL client', err);
+});
 async function testConnection() {
   try {
     const conn = await pool.getConnection();
