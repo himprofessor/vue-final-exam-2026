@@ -100,6 +100,7 @@ export const useTaskStore = defineStore('tasks', () => {
       })
       .catch((err: any) => {
         loading.value = false;
+        error.value = err.response?.data?.message || 'Failed to filter'
         return false;
       });
   }
@@ -114,6 +115,7 @@ export const useTaskStore = defineStore('tasks', () => {
       })
       .catch((err: any) => {
         loading.value = false
+        error.value = err.response?.data?.message || 'Failed to reset filter'
         return false
       })
   }
