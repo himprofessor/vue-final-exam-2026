@@ -6,6 +6,8 @@ const AppError = require('../utils/AppError');
 // controllers know WHO is making the request (used to scope tasks to
 // their owner).
 function requireAuth(req, res, next) {
+
+
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
