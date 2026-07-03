@@ -11,9 +11,25 @@ const taskRoutes = require('./routes/taskRoutes');
 const app = express();
 
 // ---- Global middleware ------------------------------------------------
+// Allow multiple frontend origins (Vite may use different ports)
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map(s => s.trim());
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (server-to-server, curl, etc.)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.some(o => origin.startsWith(o))) {
+        return callback(null, true);
+      }
+      // In development, allow any localhost origin
+      if (process.env.NODE_ENV === 'development' && origin.startsWith('http://localhost')) {
+        return callback(null, true);
+      }
+      callback(null, true); // Allow all in dev
+    },
     credentials: true,
   })
 );
