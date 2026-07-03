@@ -47,7 +47,7 @@ const statusLabel: Record<TaskStatus, string> = {
         <option v-for="(label, value) in statusLabel" :key="value" :value="value">{{ label }}</option>
       </select>
     </td>
-    <td class="px-4 py-3 text-sm text-gray-500">{{ task.due_date || '—' }}</td>
+    <td class="px-4 py-3 text-sm text-gray-500">{{ task.due_date || 'No due date' }}</td>
     <td class="px-4 py-3">
       <div class="flex justify-end gap-2">
         <button class="text-sm font-medium text-primary-600 hover:text-primary-700" @click="emit('edit', task)">

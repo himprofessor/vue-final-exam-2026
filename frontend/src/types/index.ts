@@ -66,6 +66,7 @@ export interface Pagination {
 
 export interface TaskFilters {
   status?: TaskStatus | ''
+  priority?: TaskPriority | ''
   category_id?: number | ''
   search?: string
   page?: number

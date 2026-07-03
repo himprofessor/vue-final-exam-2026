@@ -20,7 +20,7 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorAlert from '@/components/ui/ErrorAlert.vue'
 import TaskForm from '@/components/tasks/TaskForm.vue'
 import TaskRow from '@/components/tasks/TaskRow.vue'
-import type { Task, TaskPayload, TaskStatus } from '@/types'
+import type { Task, TaskPayload, TaskStatus, TaskPriority } from '@/types'
 
 const taskStore = useTaskStore()
 const categoryStore = useCategoryStore()
@@ -82,6 +82,10 @@ function handleStatusFilter(value: string) {
   taskStore.setFilters({ status: value as TaskStatus | '' })
 }
 
+function handlePriorityFilter(value: string) {
+  taskStore.setFilters({ priority: value as TaskPriority | '' })
+}
+
 function handleCategoryFilter(value: string) {
   taskStore.setFilters({ category_id: value ? Number(value) : '' })
 }
@@ -94,6 +98,12 @@ const statusFilterOptions = [
   { value: 'todo', label: 'To Do' },
   { value: 'in_progress', label: 'In Progress' },
   { value: 'done', label: 'Done' },
+]
+
+const priorityFilterOptions = [
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
 ]
 </script>
 
@@ -120,6 +130,12 @@ const statusFilterOptions = [
         placeholder="All categories"
         :options="categoryStore.categories.map((c) => ({ value: c.id, label: c.name }))"
         @update:model-value="handleCategoryFilter"
+      />
+      <BaseSelect
+        :model-value="taskStore.filters.priority || ''"
+        placeholder="All priorities"
+        :options="priorityFilterOptions"
+        @update:model-value="handlePriorityFilter"
       />
     </div>
 
