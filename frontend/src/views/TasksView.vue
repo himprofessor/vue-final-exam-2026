@@ -29,6 +29,7 @@ const isModalOpen = ref(false)
 const editingTask = ref<Task | null>(null)
 const isConfirmOpen = ref(false)
 const taskToDelete = ref<Task | null>(null)
+  
 
 onMounted(() => {
   taskStore.fetchTasks()

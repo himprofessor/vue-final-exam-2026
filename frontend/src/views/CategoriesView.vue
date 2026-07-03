@@ -123,4 +123,5 @@ async function confirmDelete() {
       @confirm="confirmDelete"
     />
   </div>
+  
 </template>
