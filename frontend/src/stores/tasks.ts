@@ -138,10 +138,33 @@ export const useTaskStore = defineStore('tasks', () => {
   // -----------------------------------------------------------------------
   function setFilters(_newFilters: Partial<TaskFilters>) {
     // TODO: replace this with a real implementation
+
+    filters.value = { ...filters.value, ..._newFilters, page: 1 };
+    return fetchTasks()
+    .then(() => {
+      loading.value = false;
+      console.log(_newFilters)
+        console.log(filters.value)
+        return true; 
+      })
+      .catch((err: any) => {
+        loading.value = false;
+        return false;
+      });
   }
 
   function resetFilters() {
     // TODO: replace this with a real implementation
+    filters.value = { status: ''}
+    return fetchTasks()
+    .then(()=>{
+      loading.value=true
+      return true
+    })
+    .catch((err:any)=>{
+      loading.value=false
+      return false
+    })
   }
 
   return {
