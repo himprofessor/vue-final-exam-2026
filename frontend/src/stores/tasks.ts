@@ -66,8 +66,6 @@ export const useTaskStore = defineStore('tasks', () => {
     } finally {
       loading.value = false
     }
-    // TODO: replace this with a real implementation
-    // throw new Error('TODO: implement createTask in stores/tasks.ts')
   }
 
   // -----------------------------------------------------------------------
@@ -87,8 +85,6 @@ export const useTaskStore = defineStore('tasks', () => {
     } finally {
       loading.value = false
     }
-    // TODO: replace this with a real implementation
-    //throw new Error('TODO: implement updateTask in stores/tasks.ts')
   }
 
   // -----------------------------------------------------------------------
@@ -108,8 +104,6 @@ export const useTaskStore = defineStore('tasks', () => {
     } finally {
       loading.value = false
     }
-    // TODO: replace this with a real implementation
-    //throw new Error('TODO: implement deleteTask in stores/tasks.ts')
   }
 
   // Provided for you: a small "quick toggle" action so you can see a

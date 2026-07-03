@@ -16,24 +16,19 @@ export const taskService = {
     return api.get<ApiResponse<{ task: Task }>>(`/tasks/${id}`)
   },
 
-  // TODO: implement `create`.
-  // Hint: POST to '/tasks' with the payload, same shape as
-  // categoryService.create() above. Return type should be
-  // ApiResponse<{ task: Task }>.
+  //Create Task
   create(payload: TaskPayload) {
     return api.post<ApiResponse<{ task: Task }>>('/tasks', payload)
   },
-  // TODO: implement `update`.
-  // Hint: PUT to `/tasks/${id}` with the payload.
+  //Update Task
   update(id: number, payload: TaskPayload) {
     return api.put<ApiResponse<{ category: Task }>>(`/tasks/${id}`, payload)
   },
+  //Update Status
   updateStatus(id: number, status: Task['status']) {
     return api.patch<ApiResponse<{ task: Task }>>(`/tasks/${id}/status`, { status })
   },
-
-  // TODO: implement `remove`.
-  // Hint: DELETE `/tasks/${id}`.
+  //Remove Task
   remove(id: number) {
     return api.delete<ApiResponse<null>>(`/tasks/${id}`)
   },
