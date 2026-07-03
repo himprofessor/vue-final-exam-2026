@@ -20,8 +20,8 @@ export const taskService = {
   // Hint: POST to '/tasks' with the payload, same shape as
   // categoryService.create() above. Return type should be
   // ApiResponse<{ task: Task }>.
-  create(_payload: TaskPayload) {
-    throw new Error('TODO: implement taskService.create')
+  create(payload: TaskPayload) {
+    return api.post<ApiResponse<{ task: Task }>>('/tasks', payload)
   },
 
   // TODO: implement `update`.
