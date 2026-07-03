@@ -88,8 +88,6 @@ export const useTaskStore = defineStore('tasks', () => {
   }
 
   function setFilters(_newFilters: Partial<TaskFilters>) {
-
-
     filters.value = { ...filters.value, ..._newFilters, page: 1 };
     return fetchTasks()
       .then(() => {
@@ -106,11 +104,16 @@ export const useTaskStore = defineStore('tasks', () => {
   }
 
   function resetFilters() {
+    loading.value = true
+    filters.value = {
+      status: '',
+      category_id: '',
+      page: 1,
+    }
 
-    filters.value = { status: '' }
     return fetchTasks()
       .then(() => {
-        loading.value = true
+        loading.value = false
         return true
       })
       .catch((err: any) => {
