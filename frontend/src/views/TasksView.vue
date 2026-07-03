@@ -46,15 +46,13 @@ function openEditModal(task: Task) {
 }
 
 async function handleSubmit(payload: TaskPayload) {
-  // TODO (depends on stores/tasks.ts TODO 1 & 2):
-  // once createTask/updateTask are implemented, this will work as-is.
-  const success = editingTask.value
-    ? await taskStore.updateTask(editingTask.value.id, payload)
-    : await taskStore.createTask(payload)
-
-  if (success) {
-    isModalOpen.value = false
+  if (editingTask.value) {
+    await taskStore.updateTask(editingTask.value.id, payload)
+  } else {
+    await taskStore.createTask(payload)
   }
+
+  isModalOpen.value = false
 }
 
 function askDelete(task: Task) {
@@ -64,15 +62,18 @@ function askDelete(task: Task) {
 
 async function confirmDelete() {
   if (!taskToDelete.value) return
-  // TODO (depends on stores/tasks.ts TODO 3): implement deleteTask first.
+
   const success = await taskStore.deleteTask(taskToDelete.value.id)
+
   if (success) {
     isConfirmOpen.value = false
     taskToDelete.value = null
   }
 }
 
+
 function handleStatusChange(id: number, status: TaskStatus) {
+  // Dispatches status transition immediately to the backend store 
   taskStore.updateTaskStatus(id, status)
 }
 
@@ -88,6 +89,10 @@ function handleCategoryFilter(value: string) {
 
 function goToPage(page: number) {
   taskStore.setFilters({ page })
+}
+
+function handleResetFilters() {
+  taskStore.resetFilters()
 }
 
 const statusFilterOptions = [
@@ -121,6 +126,9 @@ const statusFilterOptions = [
         :options="categoryStore.categories.map((c) => ({ value: c.id, label: c.name }))"
         @update:model-value="handleCategoryFilter"
       />
+      <BaseButton variant="secondary" @click="handleResetFilters">
+        Reset Filters
+      </BaseButton>
     </div>
 
     <ErrorAlert v-if="taskStore.error" :message="taskStore.error" class="mb-4" @dismiss="taskStore.error = null" />

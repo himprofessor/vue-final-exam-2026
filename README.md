@@ -238,7 +238,7 @@ The **Tasks** feature has the following `TODO`s:
 2. **`frontend/src/stores/tasks.ts`**:
    - `createTask(payload)` — call the service, then re-fetch the list
    - `updateTask(id, payload)` — same pattern
-   - `deleteTask(id)` — same pattern
+   - ` — same pattern
    - `setFilters(newFilters)` / `resetFilters()` — update `filters.value` and re-fetch
 3. Once those are done, `TasksView.vue` should work with **no changes needed** — it already calls these store actions.
 

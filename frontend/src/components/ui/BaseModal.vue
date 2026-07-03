@@ -1,35 +1,31 @@
 <script setup lang="ts">
-defineProps<{
+import { computed } from 'vue'
+
+const props = defineProps<{
   modelValue: boolean
-  title: string
+  title?: string
 }>()
 
-defineEmits<{
-  (e: 'update:modelValue', value: boolean): void
-}>()
+const emit = defineEmits<{ (e: 'update:modelValue', value: boolean): void }>()
+
+const isOpen = computed(() => props.modelValue)
+
+function close() {
+  emit('update:modelValue', false)
+}
 </script>
 
 <template>
-  <Teleport to="body">
-    <div
-      v-if="modelValue"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-      @click.self="$emit('update:modelValue', false)"
-    >
-      <div class="card w-full max-w-lg p-6">
-        <div class="mb-4 flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-900">{{ title }}</h3>
-          <button
-            class="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-            @click="$emit('update:modelValue', false)"
-          >
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" @click.self="close">
+    <div class="w-full max-w-lg rounded-xl bg-white shadow-lg">
+      <div class="flex items-center justify-between border-b px-4 py-3">
+        <h2 class="text-base font-semibold text-gray-900">{{ title }}</h2>
+        <button class="text-gray-500 hover:text-gray-700" @click="close">✕</button>
+      </div>
+      <div class="p-4">
         <slot />
       </div>
     </div>
-  </Teleport>
+  </div>
 </template>
+

@@ -1,18 +1,21 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    color?: string
     text: string
+    color?: string
   }>(),
-  { color: '#6366f1' }
+  {
+    color: '#6366f1',
+  },
 )
 </script>
 
 <template>
   <span
-    class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-    :style="{ backgroundColor: color + '20', color: color }"
+    class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
+    :style="{ backgroundColor: `${color}22`, color }"
   >
     {{ text }}
   </span>
 </template>
+

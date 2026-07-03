@@ -1,34 +1,47 @@
 <script setup lang="ts">
-interface Option {
-  value: string | number
-  label: string
-}
+import { computed } from 'vue'
 
-defineProps<{
-  modelValue: string | number | null
-  options: Option[]
-  label?: string
-  placeholder?: string
-  error?: string
-}>()
+type Option = { value: string | number; label: string }
 
-defineEmits<{
+const props = withDefaults(
+  defineProps<{
+    modelValue?: string | number
+    label?: string
+    placeholder?: string
+    options: Option[]
+  }>(),
+  {
+    label: '',
+    placeholder: 'Select...',
+    modelValue: '',
+  },
+)
+
+const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
+
+const value = computed({
+  get: () => String(props.modelValue ?? ''),
+  set: (v: string) => emit('update:modelValue', v),
+})
 </script>
 
 <template>
   <div>
     <label v-if="label" class="mb-1 block text-sm font-medium text-gray-700">{{ label }}</label>
     <select
-      :value="modelValue ?? ''"
-      class="input-field"
-      :class="{ 'border-red-400 focus:ring-red-400': error }"
-      @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
+      class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary-500"
+      :value="value"
+      @change="(e) => (value = (e.target as HTMLSelectElement).value)"
     >
-      <option v-if="placeholder" value="" disabled>{{ placeholder }}</option>
-      <option v-for="opt in options" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+      <option value="" disabled hidden>
+        {{ placeholder }}
+      </option>
+      <option v-for="o in options" :key="String(o.value)" :value="o.value">
+        {{ o.label }}
+      </option>
     </select>
-    <p v-if="error" class="mt-1 text-xs text-red-500">{{ error }}</p>
   </div>
 </template>
+
