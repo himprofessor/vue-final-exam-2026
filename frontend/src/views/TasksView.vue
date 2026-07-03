@@ -9,7 +9,6 @@
 // reference for the exact pattern to follow.
 // =====================================================================
 import { ref, onMounted } from 'vue'
-import { useTaskStore } from '@/stores/tasks'
 import { useCategoryStore } from '@/stores/categories'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
@@ -21,6 +20,7 @@ import ErrorAlert from '@/components/ui/ErrorAlert.vue'
 import TaskForm from '@/components/tasks/TaskForm.vue'
 import TaskRow from '@/components/tasks/TaskRow.vue'
 import type { Task, TaskPayload, TaskStatus } from '@/types'
+import { useTaskStore } from '@/stores/tasks'
 
 const taskStore = useTaskStore()
 const categoryStore = useCategoryStore()
