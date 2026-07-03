@@ -341,6 +341,10 @@ Before submitting, confirm:
    - A short note (in this README or a separate `SUBMISSION.md`) describing any bonus tasks you attempted
 4. Submit before the exam deadline set by your instructor.
 
----
+<!-- bonus tasks you attempted -->
+bonus tasks I have attempted: 
+1. Add a "Mark all as done" bulk action for the currently filtered tasks.
+2. Add category task-counts to the Categories page using a relation query (COUNT(tasks.id) grouped by category). (I have really try on it and it still didn't gt success on Add category task-counts)
+3. I have add new data more that the exist one like in Categories and tasks due i want to make sure it works currectly.
 
 Good luck — and remember: when in doubt, look at how `categories` does it, and do the same for `tasks`.

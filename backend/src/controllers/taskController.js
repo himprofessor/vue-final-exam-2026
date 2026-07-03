@@ -2,9 +2,6 @@ const catchAsync = require('../middleware/catchAsync');
 const AppError = require('../utils/AppError');
 const taskModel = require('../models/taskModel');
 
-// GET /api/tasks?status=&category_id=&search=&page=&limit=
-// Tasks are always scoped to the logged-in user (req.user.id) - this is
-// the "users -> tasks" one-to-many relationship in action.
 const getAll = catchAsync(async (req, res) => {
   const { status, category_id, search, page, limit } = req.query;
 
@@ -51,7 +48,7 @@ const create = catchAsync(async (req, res) => {
     userId: req.user.id,
   });
 
-  res.status(201).json({ success: true, message: 'Task created', data: { task } });
+  res.status(201).json({ success: true, message: 'Task created successfully', data: { task } });
 });
 
 // PUT /api/tasks/:id
@@ -70,7 +67,7 @@ const update = catchAsync(async (req, res, next) => {
     categoryId: category_id,
   });
 
-  res.status(200).json({ success: true, message: 'Task updated', data: { task } });
+  res.status(200).json({ success: true, message: 'Task updated successfully', data: { task } });
 });
 
 // PATCH /api/tasks/:id/status  (bonus quick-toggle endpoint)
@@ -80,7 +77,7 @@ const updateStatus = catchAsync(async (req, res, next) => {
 
   const { status } = req.body;
   const task = await taskModel.updateStatus(req.params.id, req.user.id, status);
-  res.status(200).json({ success: true, message: 'Task status updated', data: { task } });
+  res.status(200).json({ success: true, message: 'Task status updated successfully', data: { task } });
 });
 
 // DELETE /api/tasks/:id
@@ -89,7 +86,8 @@ const remove = catchAsync(async (req, res, next) => {
   if (!existing) return next(new AppError('Task not found', 404));
 
   await taskModel.remove(req.params.id, req.user.id);
-  res.status(200).json({ success: true, message: 'Task deleted' });
+  res.status(200).json({ success: true, message: 'Task deleted successfully' });
 });
+
 
 module.exports = { getAll, getOne, create, update, updateStatus, remove };

@@ -40,11 +40,16 @@ async function findAllForUser(userId, { status, categoryId, search, page = 1, li
   }
 
   const where = `WHERE ${conditions.join(' AND ')}`;
-  const offset = (Number(page) - 1) * Number(limit);
+  
+  // FIXED: Parse as safe integers to guarantee clean mathematical values
+  const safePage = Math.max(1, parseInt(page) || 1);
+  const safeLimit = Math.max(1, parseInt(limit) || 10);
+  const offset = (safePage - 1) * safeLimit;
 
+  // FIXED: Injected limit and offset directly via template strings to prevent native MySQL library driver syntax crashes
   const [rows] = await pool.query(
-    `${BASE_SELECT} ${where} ORDER BY t.created_at DESC LIMIT ? OFFSET ?`,
-    [...params, Number(limit), offset]
+    `${BASE_SELECT} ${where} ORDER BY t.created_at DESC LIMIT ${safeLimit} OFFSET ${offset}`,
+    params
   );
 
   const [countRows] = await pool.query(
@@ -54,9 +59,9 @@ async function findAllForUser(userId, { status, categoryId, search, page = 1, li
 
   return {
     tasks: rows,
-    total: countRows[0].total,
-    page: Number(page),
-    limit: Number(limit),
+    total: countRows[0]?.total || 0,
+    page: safePage,
+    limit: safeLimit,
   };
 }
 
@@ -93,6 +98,28 @@ async function remove(id, userId) {
   await pool.query('DELETE FROM tasks WHERE id = ? AND user_id = ?', [id, userId]);
 }
 
+async function bulkUpdateStatusForUser(userId, { status, categoryId, search }, newStatus) {
+  const conditions = ['user_id = ?'];
+  const params = [newStatus, userId]; // first parameter is the SET value
+
+  if (status) {
+    conditions.push('status = ?');
+    params.push(status);
+  }
+  if (categoryId) {
+    conditions.push('category_id = ?');
+    params.push(categoryId);
+  }
+  if (search) {
+    conditions.push('title LIKE ?');
+    params.push(`%${search}%`);
+  }
+
+  const where = `WHERE ${conditions.join(' AND ')}`;
+
+  // Safely updates only tasks belonging to this user matching the current view constraints
+  await pool.query(`UPDATE tasks SET status = ? ${where}`, params);
+}
 module.exports = {
   findAllForUser,
   findByIdForUser,
