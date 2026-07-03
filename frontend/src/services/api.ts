@@ -12,6 +12,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 })
 
 // Attach the JWT (if we have one) to every outgoing request.
