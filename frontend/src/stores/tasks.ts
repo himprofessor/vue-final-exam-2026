@@ -38,21 +38,22 @@ export const useTaskStore = defineStore('tasks', () => {
     }
   }
 
-  // -----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
   // TODO 1: implement createTask(payload)
-  //
-  // Requirements:
-  //   - set loading = true and clear error before the request
-  //   - call taskService.create(payload)  (you also need to finish that
-  //     function in services/taskService.ts first!)
-  //   - after a successful create, call fetchTasks() again so the list
-  //     reflects the new task (this is the "re-fetch after CRUD" pattern
-  //     mentioned in the exam brief)
-  //   - wrap everything in try/catch/finally like fetchTasks() above
-  //   - return true on success, false on failure (so the component
-  //     calling this action knows whether to close the modal)
-  // -----------------------------------------------------------------------
+
   async function createTask(_payload: TaskPayload) {
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.create(_payload)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to create task.'
+      return false
+    } finally {
+      loading.value = false
+    }
     // TODO: replace this with a real implementation
     throw new Error('TODO: implement createTask in stores/tasks.ts')
   }
@@ -61,7 +62,19 @@ export const useTaskStore = defineStore('tasks', () => {
   // TODO 2: implement updateTask(id, payload)
   // Same pattern as createTask, but call taskService.update(id, payload).
   // -----------------------------------------------------------------------
-  async function updateTask(_id: number, _payload: TaskPayload) {
+  async function updateTask(id: number, payload: TaskPayload) {
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.update(id, payload)
+      await fetchTasks()
+      return true
+    }catch(err:any){
+      error.value=err.response?.data?.message||'Failed to update task'
+      return false
+    }finally{
+      loading.value=false
+    }
     // TODO: replace this with a real implementation
     throw new Error('TODO: implement updateTask in stores/tasks.ts')
   }
@@ -72,6 +85,18 @@ export const useTaskStore = defineStore('tasks', () => {
   // Remember: this should also re-fetch the list afterwards.
   // -----------------------------------------------------------------------
   async function deleteTask(_id: number) {
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.remove(_id)
+      await fetchTasks()
+      return true
+    }catch(err:any){
+      error.value=err.response?.data?.message||'Failed to delete task'
+      return false
+    }finally{
+      loading.value=false
+    }
     // TODO: replace this with a real implementation
     throw new Error('TODO: implement deleteTask in stores/tasks.ts')
   }
@@ -106,11 +131,13 @@ export const useTaskStore = defineStore('tasks', () => {
   // the `filters` ref above, then call fetchTasks().
   // -----------------------------------------------------------------------
   function setFilters(_newFilters: Partial<TaskFilters>) {
-    // TODO: replace this with a real implementation
+    filters.value = { ...filters.value, ..._newFilters, page: 1 }
+    fetchTasks()
   }
 
   function resetFilters() {
-    // TODO: replace this with a real implementation
+    filters.value = { status: '', category_id: '', search: '', page: 1, limit: 10}
+    fetchTasks()
   }
 
   return {

@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 // App.vue is intentionally tiny: it only renders whatever the current
 // route matches. All layout (sidebar/header) lives in AppLayout.vue,
@@ -7,3 +8,5 @@
 <template>
   <RouterView />
 </template>
+<style>
+</style>
