@@ -57,7 +57,7 @@ export const useTaskStore = defineStore('tasks', () => {
       error.value = null
     try {
       await taskService.create(payload)
-      await fetchTasks() 
+      await fetchTasks()
       return true
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create task.'
@@ -136,16 +136,18 @@ export const useTaskStore = defineStore('tasks', () => {
   // the `filters` ref above, then call fetchTasks().
   // -----------------------------------------------------------------------
   function setFilters(newFilters: Partial<TaskFilters>) {
-    // TODO: replace this with a real implementation
-    newFilters = filters.value;
-    newFilters.page = 1;
+    filters.value = {
+      ...filters.value,
+      ...newFilters,
+      page: 1
+    };
+
     fetchTasks();
   }
 
   function resetFilters() {
-    // TODO: replace this with a real implementation
-    filters.value;
-    
+    filters.value = { status: '', category_id: '', search: '', page: 1, limit: 10 };
+    fetchTasks();
   }
 
   return {
