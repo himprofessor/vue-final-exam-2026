@@ -38,25 +38,13 @@ export const useTaskStore = defineStore('tasks', () => {
     }
   }
 
-  // -----------------------------------------------------------------------
-  // TODO 1: implement createTask(payload)
-  //
-  // Requirements:
-  //   - set loading = true and clear error before the request
-  //   - call taskService.create(payload)  (you also need to finish that
-  //     function in services/taskService.ts first!)
-  //   - after a successful create, call fetchTasks() again so the list
-  //     reflects the new task (this is the "re-fetch after CRUD" pattern
-  //     mentioned in the exam brief)
-  //   - wrap everything in try/catch/finally like fetchTasks() above
-  //   - return true on success, false on failure (so the component
-  //     calling this action knows whether to close the modal)
-  // -----------------------------------------------------------------------
+  // Done1: implement createTask(payload)
   async function createTask(payload: TaskPayload) {
     loading.value = true
     error.value = null
     try{
       await taskService.create(payload)
+      // Mitigates Mistake #2 & #5: Always re-fetch clean state wholesale
       await fetchTasks()
       return true
     }catch(err: any) {
@@ -67,12 +55,9 @@ export const useTaskStore = defineStore('tasks', () => {
     }
   }
 
-  // -----------------------------------------------------------------------
-  // TODO 2: implement updateTask(id, payload)
-  // Same pattern as createTask, but call taskService.update(id, payload).
-  // -----------------------------------------------------------------------
   async function updateTask(_id: number, _payload: TaskPayload) {
-    // TODO: replace this with a real implementation
+    // Done 2: replace this with a real implementation
+
     loading.value = true
     error.value = null
     try {
@@ -86,12 +71,8 @@ export const useTaskStore = defineStore('tasks', () => {
     }
   }
 
-  // -----------------------------------------------------------------------
-  // TODO 3: implement deleteTask(id)
-  // Same pattern, but call taskService.remove(id). No payload needed.
-  // Remember: this should also re-fetch the list afterwards.
-  // -----------------------------------------------------------------------
   async function deleteTask(_id: number) {
+    // Done 3: implement deleteTask(id)
     loading.value = true
     error.value = null
     try {
@@ -104,9 +85,6 @@ export const useTaskStore = defineStore('tasks', () => {
       loading.value =false
     }
   }
-
-  // Provided for you: a small "quick toggle" action so you can see a
-  // working example of updating one field without opening the full form.
   async function updateTaskStatus(id: number, status: TaskStatus) {
     loading.value = true
     error.value = null
@@ -121,25 +99,14 @@ export const useTaskStore = defineStore('tasks', () => {
       loading.value = false
     }
   }
-
-  // -----------------------------------------------------------------------
-  // TODO 4: implement setFilters(newFilters) and resetFilters()
-  //
-  // setFilters should:
-  //   - merge newFilters into filters.value
-  //   - reset filters.value.page back to 1 (whenever a filter changes,
-  //     you want to start again from page 1)
-  //   - call fetchTasks() so the table updates immediately
-  //
-  // resetFilters should restore filters.value to the default shown in
-  // the `filters` ref above, then call fetchTasks().
-  // -----------------------------------------------------------------------
+ // Done 4: implement setFilters(newFilters) and resetFilters()
   function setFilters(_newFilters: Partial<TaskFilters>) {
-    // TODO: replace this with a real implementation
+        // Mitigates Mistake #3: Hard reset page parameters back to 1 when changing filtering options
+    const targetPage =_newFilters.page !== undefined ? _newFilters.page : 1
     filters.value = {
       ...filters.value,
       ..._newFilters,
-      page: 1
+      page: targetPage
     }
     fetchTasks()
   }
