@@ -74,9 +74,9 @@ export const useTaskStore = defineStore('tasks', () => {
     loading.value =true
     error.value=null
     try{
-        await taskService.update(id,payload)
-        await fetchTasks()
-        return true
+      await taskService.update(id,payload)
+      await fetchTasks()
+      return true
     }catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create tasks.'
       return false
