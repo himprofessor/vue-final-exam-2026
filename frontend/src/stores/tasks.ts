@@ -37,7 +37,6 @@ export const useTaskStore = defineStore('tasks', () => {
       loading.value = false
     }
   }
-
   // -----------------------------------------------------------------------
   // TODO 1: implement createTask(payload)
   //
