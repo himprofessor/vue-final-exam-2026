@@ -109,29 +109,20 @@ const statusFilterOptions = [
 
     <!-- Filters -->
     <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      <BaseSelect
-        :model-value="taskStore.filters.status || ''"
-        placeholder="All statuses"
-        :options="statusFilterOptions"
-        @update:model-value="handleStatusFilter"
-      />
-      <BaseSelect
-        :model-value="taskStore.filters.category_id || ''"
-        placeholder="All categories"
+      <BaseSelect :model-value="taskStore.filters.status || ''" placeholder="All statuses"
+        :options="statusFilterOptions" @update:model-value="handleStatusFilter" />
+      <BaseSelect :model-value="taskStore.filters.category_id || ''" placeholder="All categories"
         :options="categoryStore.categories.map((c) => ({ value: c.id, label: c.name }))"
-        @update:model-value="handleCategoryFilter"
-      />
+        @update:model-value="handleCategoryFilter" />
     </div>
+
 
     <ErrorAlert v-if="taskStore.error" :message="taskStore.error" class="mb-4" @dismiss="taskStore.error = null" />
 
     <LoadingSpinner v-if="taskStore.loading && !taskStore.tasks.length" label="Loading tasks..." />
 
-    <EmptyState
-      v-else-if="!taskStore.tasks.length"
-      title="No tasks found"
-      message="Create a task or adjust your filters."
-    >
+    <EmptyState v-else-if="!taskStore.tasks.length" title="No tasks found"
+      message="Create a task or adjust your filters.">
       <template #action>
         <BaseButton @click="openCreateModal">+ New Task</BaseButton>
       </template>
@@ -150,55 +141,35 @@ const statusFilterOptions = [
           </tr>
         </thead>
         <tbody>
-          <TaskRow
-            v-for="task in taskStore.tasks"
-            :key="task.id"
-            :task="task"
-            @edit="openEditModal"
-            @delete="askDelete"
-            @status-change="handleStatusChange"
-          />
+          <TaskRow v-for="task in taskStore.tasks" :key="task.id" :task="task" @edit="openEditModal" @delete="askDelete"
+            @status-change="handleStatusChange" />
         </tbody>
       </table>
     </div>
 
     <!-- Pagination -->
-    <div v-if="taskStore.pagination.totalPages > 1" class="mt-4 flex items-center justify-between text-sm text-gray-500">
+    <div v-if="taskStore.pagination.totalPages > 1"
+      class="mt-4 flex items-center justify-between text-sm text-gray-500">
       <span>Page {{ taskStore.pagination.page }} of {{ taskStore.pagination.totalPages }}</span>
       <div class="flex gap-2">
-        <BaseButton
-          variant="secondary"
-          :disabled="taskStore.pagination.page <= 1"
-          @click="goToPage(taskStore.pagination.page - 1)"
-        >
+        <BaseButton variant="secondary" :disabled="taskStore.pagination.page <= 1"
+          @click="goToPage(taskStore.pagination.page - 1)">
           Previous
         </BaseButton>
-        <BaseButton
-          variant="secondary"
-          :disabled="taskStore.pagination.page >= taskStore.pagination.totalPages"
-          @click="goToPage(taskStore.pagination.page + 1)"
-        >
+        <BaseButton variant="secondary" :disabled="taskStore.pagination.page >= taskStore.pagination.totalPages"
+          @click="goToPage(taskStore.pagination.page + 1)">
           Next
         </BaseButton>
       </div>
     </div>
 
     <BaseModal v-model="isModalOpen" :title="editingTask ? 'Edit Task' : 'New Task'">
-      <TaskForm
-        :task="editingTask"
-        :categories="categoryStore.categories"
-        :loading="taskStore.loading"
-        @submit="handleSubmit"
-        @cancel="isModalOpen = false"
-      />
+      <TaskForm :task="editingTask" :categories="categoryStore.categories" :loading="taskStore.loading"
+        @submit="handleSubmit" @cancel="isModalOpen = false" />
     </BaseModal>
 
-    <ConfirmDialog
-      v-model="isConfirmOpen"
-      title="Delete task?"
-      :message="`This will permanently delete '${taskToDelete?.title}'.`"
-      :loading="taskStore.loading"
-      @confirm="confirmDelete"
-    />
+    <ConfirmDialog v-model="isConfirmOpen" title="Delete task?"
+      :message="`This will permanently delete '${taskToDelete?.title}'.`" :loading="taskStore.loading"
+      @confirm="confirmDelete" />
   </div>
 </template>
