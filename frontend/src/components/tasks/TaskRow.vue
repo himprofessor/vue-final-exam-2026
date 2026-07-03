@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// Demonstrates parent <-> child component communication:
-// props flow down (task), events flow up (edit/delete/status-change).
 import BaseBadge from '@/components/ui/BaseBadge.vue'
 import type { Task, TaskStatus } from '@/types'
 
@@ -28,8 +26,8 @@ const statusLabel: Record<TaskStatus, string> = {
 <template>
   <tr class="border-b border-gray-100 last:border-0 hover:bg-gray-50">
     <td class="px-4 py-3">
-      <p class="text-sm font-medium text-gray-900">{{ task.title }}</p>
-      <p v-if="task.description" class="line-clamp-1 text-xs text-gray-500">{{ task.description }}</p>
+      <p class="text-sm font-medium text-gray-900" :class="{ 'line-through text-gray-400': task.status === 'done' }">{{ task.title }}</p>
+      <p v-if="task.description" class="line-clamp-1 text-xs text-gray-500" :class="{ 'line-through text-gray-400': task.status === 'done' }">{{ task.description }}</p>
     </td>
     <td class="px-4 py-3">
       <BaseBadge v-if="task.category_name" :text="task.category_name" :color="task.category_color || '#6366f1'" />

@@ -1,10 +1,3 @@
-// =====================================================================
-// Shared TypeScript types
-// Keeping these in one file makes it easy to see the full data model
-// of the app at a glance, and lets every store/component import from
-// the same source of truth.
-// =====================================================================
-
 export interface User {
   id: number
   name: string
@@ -23,9 +16,6 @@ export interface Category {
 export type TaskStatus = 'todo' | 'in_progress' | 'done'
 export type TaskPriority = 'low' | 'medium' | 'high'
 
-// This is the shape returned by the API (it comes from a SQL JOIN,
-// so it includes denormalized fields like category_name / owner_name
-// in addition to the raw foreign keys).
 export interface Task {
   id: number
   title: string
@@ -42,14 +32,13 @@ export interface Task {
   updated_at: string
 }
 
-// Payload shape used when creating/updating a task from a form.
 export interface TaskPayload {
   title: string
-  description?: string
+  description?: string | null
   status?: TaskStatus
   priority?: TaskPriority
-  due_date?: string | null
-  category_id?: number | null
+  due_date?: string | null | ''
+  category_id?: number | string | null | ''
 }
 
 export interface CategoryPayload {
@@ -66,15 +55,19 @@ export interface Pagination {
 
 export interface TaskFilters {
   status?: TaskStatus | ''
-  category_id?: number | ''
+  category_id?: number | string | ''
   search?: string
-  page?: number
-  limit?: number
+  page?: number | string
+  limit?: number | string
 }
 
-// Generic wrapper matching the backend's { success, message, data } envelope
 export interface ApiResponse<T> {
   success: boolean
   message?: string
   data: T
+}
+
+export interface PaginatedTasks {
+  tasks: Task[]
+  pagination: Pagination
 }

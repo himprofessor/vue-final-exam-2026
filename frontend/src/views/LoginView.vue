@@ -6,6 +6,7 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import ErrorAlert from '@/components/ui/ErrorAlert.vue'
 
+// Pre-filled variables matching your database baseline
 const email = ref('jane@taskflow.com')
 const password = ref('password123')
 
@@ -13,9 +14,14 @@ const authStore = useAuthStore()
 const router = useRouter()
 
 async function handleSubmit() {
+  authStore.error = null
+  
+  // FIX: Passed inputs as direct separate arguments to perfectly match your auth store's signature: login(email, password)
   const success = await authStore.login(email.value, password.value)
+  
   if (success) {
-    router.push({ name: 'dashboard' })
+    // Navigate straight to your operational task list path name
+    router.push({ name: 'tasks' })
   }
 }
 </script>
