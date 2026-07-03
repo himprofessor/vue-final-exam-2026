@@ -31,13 +31,12 @@ export const useCategoryStore = defineStore('categories', () => {
       loading.value = false
     }
   }
-
   async function createCategory(payload: CategoryPayload) {
     loading.value = true
     error.value = null
     try {
       await categoryService.create(payload)
-      await fetchCategories() // re-fetch so the list (and any task dropdowns) stay in sync
+      await fetchCategories()
       return true
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create category.'
@@ -77,5 +76,13 @@ export const useCategoryStore = defineStore('categories', () => {
     }
   }
 
-  return { categories, loading, error, fetchCategories, createCategory, updateCategory, deleteCategory }
+  return { 
+    categories, 
+    loading, 
+    error, 
+    fetchCategories, 
+    createCategory, 
+    updateCategory, 
+    deleteCategory 
+  }
 })
