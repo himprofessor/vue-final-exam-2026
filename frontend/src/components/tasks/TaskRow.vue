@@ -60,3 +60,4 @@ const statusLabel: Record<TaskStatus, string> = {
     </td>
   </tr>
 </template>
+
