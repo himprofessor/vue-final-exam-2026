@@ -52,18 +52,38 @@ export const useTaskStore = defineStore('tasks', () => {
   //   - return true on success, false on failure (so the component
   //     calling this action knows whether to close the modal)
   // -----------------------------------------------------------------------
-  async function createTask(_payload: TaskPayload) {
-    // TODO: replace this with a real implementation
-    throw new Error('TODO: implement createTask in stores/tasks.ts')
+   async function createTask(payload: TaskPayload): Promise<boolean> {
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.create(payload)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to create task.'
+      return false
+    } finally {
+      loading.value = false
+    }
   }
 
   // -----------------------------------------------------------------------
   // TODO 2: implement updateTask(id, payload)
   // Same pattern as createTask, but call taskService.update(id, payload).
   // -----------------------------------------------------------------------
-  async function updateTask(_id: number, _payload: TaskPayload) {
-    // TODO: replace this with a real implementation
-    throw new Error('TODO: implement updateTask in stores/tasks.ts')
+  async function updateTask(id: number, payload: TaskPayload): Promise<boolean> {
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.update(id, payload)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to update task.'
+      return false
+    } finally {
+      loading.value = false
+    }
   }
 
   // -----------------------------------------------------------------------
@@ -73,7 +93,18 @@ export const useTaskStore = defineStore('tasks', () => {
   // -----------------------------------------------------------------------
   async function deleteTask(_id: number) {
     // TODO: replace this with a real implementation
-    throw new Error('TODO: implement deleteTask in stores/tasks.ts')
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.remove(_id)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'failed to delete task'
+      return false
+    } finally {
+      loading.value = false
+    }
   }
 
   // Provided for you: a small "quick toggle" action so you can see a
@@ -107,10 +138,24 @@ export const useTaskStore = defineStore('tasks', () => {
   // -----------------------------------------------------------------------
   function setFilters(_newFilters: Partial<TaskFilters>) {
     // TODO: replace this with a real implementation
+    filters.value = {
+      ...filters.value,
+      ..._newFilters,
+      page: 1, // Always reset back to page 1 on filter changes
+    }
+    fetchTasks()
   }
 
   function resetFilters() {
     // TODO: replace this with a real implementation
+    filters.value = {
+      status: '',
+      category_id: '',
+      search: '',
+      page: 1,
+      limit: 10,
+    }
+    fetchTasks()
   }
 
   return {
