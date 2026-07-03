@@ -27,8 +27,8 @@ export const taskService = {
 
   // TODO: implement `update`.
   // Hint: PUT to `/tasks/${id}` with the payload.
-  update(_id: number, _payload: TaskPayload) {
-    throw new Error('TODO: implement taskService.update')
+   update(id: number, payload: TaskPayload) {
+    return api.put<ApiResponse<{ task: Task }>>(`/tasks/${id}`, payload)
   },
 
   updateStatus(id: number, status: Task['status']) {

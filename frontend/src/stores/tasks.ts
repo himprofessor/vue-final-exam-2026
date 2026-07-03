@@ -43,8 +43,6 @@ export const useTaskStore = defineStore('tasks', () => {
   //
   // Requirements:
   //   - set loading = true and clear error before the request
-  //   - call taskService.create(payload)  (you also need to finish that
-  //     function in services/taskService.ts first!)
   //   - after a successful create, call fetchTasks() again so the list
   //     reflects the new task (this is the "re-fetch after CRUD" pattern
   //     mentioned in the exam brief)
@@ -73,8 +71,29 @@ export const useTaskStore = defineStore('tasks', () => {
   // TODO 2: implement updateTask(id, payload)
   // Same pattern as createTask, but call taskService.update(id, payload).
   // -----------------------------------------------------------------------
-  async function updateTask(_id: number, _payload: TaskPayload) {
-   
+  async function updateTask(_id: number, _payload: TaskPayload): Promise<boolean> {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const updatedTask = await taskService.update(_id, _payload)
+
+      if (tasks.value) {
+        const index = tasks.value.findIndex(task => task.id === _id);
+        if (index !== -1) {
+          tasks.value[index] = updatedTask;
+        }
+      }
+
+      await fetchTasks();
+      return true;
+    } catch (err) {
+      console.error('Failed to update task:', err);
+      error.value = err instanceof Error ? err.message : 'Update failed';
+      return false;
+    } finally {
+      loading.value = false;
+    }
   }
 
   // -----------------------------------------------------------------------
