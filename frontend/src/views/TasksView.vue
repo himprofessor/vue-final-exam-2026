@@ -90,6 +90,24 @@ function goToPage(page: number) {
   taskStore.setFilters({ page })
 }
 
+const searchQuery = ref(taskStore.filters.search || '')
+let debounceTimeout: ReturnType<typeof setTimeout> | null = null
+
+function handleSearchInput(value: string) {
+  searchQuery.value = value
+
+  if (debounceTimeout) {
+    clearTimeout(debounceTimeout)
+  }
+
+  debounceTimeout = setTimeout(() => {
+    taskStore.setFilters({
+      search: searchQuery.value,
+      page: 1
+    })
+  }, 300)
+}
+
 const statusFilterOptions = [
   { value: 'todo', label: 'To Do' },
   { value: 'in_progress', label: 'In Progress' },
@@ -120,6 +138,12 @@ const statusFilterOptions = [
         placeholder="All categories"
         :options="categoryStore.categories.map((c) => ({ value: c.id, label: c.name }))"
         @update:model-value="handleCategoryFilter"
+      />
+      <input type="text" 
+      :value="searchQuery" 
+      placeholder="Search tasks..."
+      class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+      @input="handleSearchInput(($event.target as HTMLInputElement).value)"
       />
     </div>
 

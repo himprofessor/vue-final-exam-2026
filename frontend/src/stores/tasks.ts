@@ -38,6 +38,9 @@ export const useTaskStore = defineStore("tasks", () => {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
+
+  
+
   // ---- actions -----------------------------------------------------------
 
   // Fully implemented - use this as your reference for the TODOs below.
