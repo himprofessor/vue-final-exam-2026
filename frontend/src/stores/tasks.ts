@@ -11,6 +11,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { taskService } from '@/services/taskService'
 import type { Task, TaskPayload, TaskFilters, Pagination, TaskStatus } from '@/types'
+import {setInternalFilter } from '@/services/taskService'
 
 export const useTaskStore = defineStore('tasks', () => {
   // ---- state -----------------------------------------------------------
@@ -52,9 +53,23 @@ export const useTaskStore = defineStore('tasks', () => {
   //   - return true on success, false on failure (so the component
   //     calling this action knows whether to close the modal)
   // -----------------------------------------------------------------------
+
   async function createTask(_payload: TaskPayload) {
     // TODO: replace this with a real implementation
-    throw new Error('TODO: implement createTask in stores/tasks.ts')
+    loading.value = true
+    error.value = null
+    // throw new Error('TODO: implement createTask in stores/tasks.ts')
+    try {
+      await taskService.create(_payload)
+      await fetchTasks() // re-fetch so the list (and any task dropdowns) stay in sync
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to create category.'
+      return false
+    } finally {
+      loading.value = false
+    }
+
   }
 
   // -----------------------------------------------------------------------
@@ -63,7 +78,20 @@ export const useTaskStore = defineStore('tasks', () => {
   // -----------------------------------------------------------------------
   async function updateTask(_id: number, _payload: TaskPayload) {
     // TODO: replace this with a real implementation
-    throw new Error('TODO: implement updateTask in stores/tasks.ts')
+    // throw new Error('TODO: implement updateTask in stores/tasks.ts')
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.update(_id, _payload)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to update task.'
+      return false
+    } finally {
+      loading.value = false
+    }
+
   }
 
   // -----------------------------------------------------------------------
@@ -73,7 +101,20 @@ export const useTaskStore = defineStore('tasks', () => {
   // -----------------------------------------------------------------------
   async function deleteTask(_id: number) {
     // TODO: replace this with a real implementation
-    throw new Error('TODO: implement deleteTask in stores/tasks.ts')
+    // throw new Error('TODO: implement deleteTask in stores/tasks.ts')
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.remove(_id)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to delete task.'
+      return false
+    } finally {
+      loading.value = false
+    }
+
   }
 
   // Provided for you: a small "quick toggle" action so you can see a
@@ -107,10 +148,12 @@ export const useTaskStore = defineStore('tasks', () => {
   // -----------------------------------------------------------------------
   function setFilters(_newFilters: Partial<TaskFilters>) {
     // TODO: replace this with a real implementation
+
   }
 
   function resetFilters() {
     // TODO: replace this with a real implementation
+
   }
 
   return {

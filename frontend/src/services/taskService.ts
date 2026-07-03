@@ -1,5 +1,8 @@
+import TasksView from '@/views/TasksView.vue';
 import api from './api'
 import type { ApiResponse, Task, TaskPayload, TaskFilters, Pagination } from '@/types'
+import { useRoute } from 'vue-router';
+import { useTransitionState } from 'vue';
 
 // -----------------------------------------------------------------------
 // TODO (student task): This service file is DELIBERATELY incomplete.
@@ -20,14 +23,14 @@ export const taskService = {
   // Hint: POST to '/tasks' with the payload, same shape as
   // categoryService.create() above. Return type should be
   // ApiResponse<{ task: Task }>.
-  create(_payload: TaskPayload) {
-    throw new Error('TODO: implement taskService.create')
+  create(payload: TaskPayload) {
+    return api.post<ApiResponse<{ category: Task }>>('/tasks', payload)
   },
 
   // TODO: implement `update`.
   // Hint: PUT to `/tasks/${id}` with the payload.
-  update(_id: number, _payload: TaskPayload) {
-    throw new Error('TODO: implement taskService.update')
+  update(id: number, payload: TaskPayload) {
+    return api.put<ApiResponse<{task: Task}>>(`/tasks/${id}`, payload)
   },
 
   updateStatus(id: number, status: Task['status']) {
@@ -36,7 +39,12 @@ export const taskService = {
 
   // TODO: implement `remove`.
   // Hint: DELETE `/tasks/${id}`.
-  remove(_id: number) {
-    throw new Error('TODO: implement taskService.remove')
+  remove(id: number) {
+    return api.delete<ApiResponse<null>>(`/tasks/${id}`)
   },
+
+  
 }
+
+
+
