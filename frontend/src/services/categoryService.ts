@@ -1,9 +1,6 @@
 import api from './api'
 import type { ApiResponse, Category, CategoryPayload } from '@/types'
 
-// This service is a COMPLETE reference implementation - study this file
-// to understand the pattern you'll repeat (with a few extra pieces) in
-// taskService.ts.
 export const categoryService = {
   getAll() {
     return api.get<ApiResponse<{ categories: Category[] }>>('/categories')

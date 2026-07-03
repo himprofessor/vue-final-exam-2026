@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// Fully implemented - a small read-only view that just consumes the
-// stores. Good example of using computed() to derive UI state from
-// store data without duplicating logic in the component.
 import { onMounted, computed } from 'vue'
 import { useTaskStore } from '@/stores/tasks'
 import { useCategoryStore } from '@/stores/categories'
