@@ -64,6 +64,7 @@ function askDelete(task: Task) {
 
 async function confirmDelete() {
   if (!taskToDelete.value) return
+  
   // TODO (depends on stores/tasks.ts TODO 3): implement deleteTask first.
   const success = await taskStore.deleteTask(taskToDelete.value.id)
   if (success) {
