@@ -46,8 +46,7 @@ function openEditModal(task: Task) {
 }
 
 async function handleSubmit(payload: TaskPayload) {
-  // TODO (depends on stores/tasks.ts TODO 1 & 2):
-  // once createTask/updateTask are implemented, this will work as-is.
+  
   const success = editingTask.value
     ? await taskStore.updateTask(editingTask.value.id, payload)
     : await taskStore.createTask(payload)
@@ -64,7 +63,6 @@ function askDelete(task: Task) {
 
 async function confirmDelete() {
   if (!taskToDelete.value) return
-  // TODO (depends on stores/tasks.ts TODO 3): implement deleteTask first.
   const success = await taskStore.deleteTask(taskToDelete.value.id)
   if (success) {
     isConfirmOpen.value = false
@@ -76,7 +74,13 @@ function handleStatusChange(id: number, status: TaskStatus) {
   taskStore.updateTaskStatus(id, status)
 }
 
-// TODO (depends on stores/tasks.ts TODO 4): implement setFilters/resetFilters
+function setFilters(filters: Partial<TaskFilters>) {
+  taskStore.setFilters(filters)
+}
+
+function resetFilters() {
+  taskStore.resetFilters()
+}
 // so these actually re-fetch the list from the API.
 function handleStatusFilter(value: string) {
   taskStore.setFilters({ status: value as TaskStatus | '' })
