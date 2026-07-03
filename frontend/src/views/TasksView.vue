@@ -21,6 +21,7 @@ import ErrorAlert from '@/components/ui/ErrorAlert.vue'
 import TaskForm from '@/components/tasks/TaskForm.vue'
 import TaskRow from '@/components/tasks/TaskRow.vue'
 import type { Task, TaskPayload, TaskStatus } from '@/types'
+import { f } from 'vue-router/dist/router-CWoNjPRp.mjs'
 
 const taskStore = useTaskStore()
 const categoryStore = useCategoryStore()
@@ -65,6 +66,7 @@ function askDelete(task: Task) {
 async function confirmDelete() {
   if (!taskToDelete.value) return
   // TODO (depends on stores/tasks.ts TODO 3): implement deleteTask first.
+
   const success = await taskStore.deleteTask(taskToDelete.value.id)
   if (success) {
     isConfirmOpen.value = false
@@ -77,7 +79,6 @@ function handleStatusChange(id: number, status: TaskStatus) {
 }
 
 // TODO (depends on stores/tasks.ts TODO 4): implement setFilters/resetFilters
-// so these actually re-fetch the list from the API.
 function handleStatusFilter(value: string) {
   taskStore.setFilters({ status: value as TaskStatus | '' })
 }
