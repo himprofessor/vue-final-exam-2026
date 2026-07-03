@@ -64,7 +64,7 @@ function handleSubmit() {
     description: description.value.trim() || undefined,
     status: status.value,
     priority: priority.value,
-    due_date: dueDate.value || null,
+    due_date: dueDate.value.trim() || null,
     category_id: categoryId.value ? Number(categoryId.value) : null,
   })
 }
@@ -90,12 +90,12 @@ function handleSubmit() {
         v-model="categoryId"
         label="Category"
         placeholder="No category"
-        :options="categories.map((c) => ({ value: c.id, label: c.name }))"
+        :options="categories.map((c) => ({ value: String(c.id), label: c.name }))"
       />
     </div>
-
+    
     <div class="mt-2 flex justify-end gap-3">
-      <BaseButton variant="secondary" type="button" @click="$emit('cancel')">Cancel</BaseButton>
+      <BaseButton variant="secondary" type="button" @click="emit('cancel')">Cancel</BaseButton>
       <BaseButton type="submit" :loading="loading">Save Task</BaseButton>
     </div>
   </form>

@@ -54,6 +54,19 @@ export const useTaskStore = defineStore('tasks', () => {
   // -----------------------------------------------------------------------
   async function createTask(_payload: TaskPayload) {
     // TODO: replace this with a real implementation
+    loading.value = true
+    error.value = null
+    try{
+      await taskService.create(payload)
+      await fetchTasks()
+      return true
+    }catch (err:any) {
+      error.value = err.response?.data?.message || 'cannot create the task'
+      return false
+    }finally {
+      loading.value = false
+    }
+
     throw new Error('TODO: implement createTask in stores/tasks.ts')
   }
 
@@ -64,6 +77,18 @@ export const useTaskStore = defineStore('tasks', () => {
   async function updateTask(_id: number, _payload: TaskPayload) {
     // TODO: replace this with a real implementation
     throw new Error('TODO: implement updateTask in stores/tasks.ts')
+    loading.value = true
+    error.value = null
+    try{
+      await taskService.update(id, payload)
+      await fetchTasks()
+      return true
+    }catch (err:any) {
+      error.value = err.response?.data?.message || 'cannot create the task'
+      return false
+    }finally {
+      loading.value = false
+    }
   }
 
   // -----------------------------------------------------------------------
@@ -74,6 +99,18 @@ export const useTaskStore = defineStore('tasks', () => {
   async function deleteTask(_id: number) {
     // TODO: replace this with a real implementation
     throw new Error('TODO: implement deleteTask in stores/tasks.ts')
+    loading.value = true
+    error.value = null
+    try{
+      await taskService.remove(id)
+      await fetchTasks()
+      return true
+    }catch (err:any) {
+      error.value = err.response?.data?.message || 'cannot create the task'
+      return false
+    }finally {
+      loading.value = false
+    }
   }
 
   // Provided for you: a small "quick toggle" action so you can see a
@@ -107,10 +144,23 @@ export const useTaskStore = defineStore('tasks', () => {
   // -----------------------------------------------------------------------
   function setFilters(_newFilters: Partial<TaskFilters>) {
     // TODO: replace this with a real implementation
+    filters.value = {
+      ...filters.value,
+      ..._newFilters
+    }
+    filters.value.page =1
+    fetchTasks()
   }
 
   function resetFilters() {
     // TODO: replace this with a real implementation
+    filters.value = {
+      status: '',
+      category_id: '',
+      search: '',
+      page: 1,
+      limit: 10
+    }
   }
 
   return {
