@@ -17,7 +17,7 @@ export const useTaskStore = defineStore('tasks', () => {
   const tasks = ref<Task[]>([])
   const currentTask = ref<Task | null>(null)
   const pagination = ref<Pagination>({ total: 0, page: 1, limit: 10, totalPages: 0 })
-  const filters = ref<TaskFilters>({ status: '', category_id: '', search: '', page: 1, limit: 10 })
+  const filters = ref<TaskFilters>({ status: '', category_id: '', search: '', page: 1, limit: 10, sort_by: '', sort_order: 'desc' })
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -47,8 +47,8 @@ export const useTaskStore = defineStore('tasks', () => {
       // Mitigates Mistake #2 & #5: Always re-fetch clean state wholesale
       await fetchTasks()
       return true
-    }catch(err: any) {
-      error.value = err.responese?.message || 'FAILED TO CREATE TASK'
+    } catch(err: any) {
+      error.value = err.response?.data?.message || 'Failed to create task'
       return false
     } finally {
         loading.value = false
@@ -65,9 +65,10 @@ export const useTaskStore = defineStore('tasks', () => {
       await fetchTasks()
       return true
     } catch (err: any) {
-      error.value = err.responde?.data?.message || 'Failed to update a task'
+      error.value = err.response?.data?.message || 'Failed to update task'
+      return false
     } finally {
-      loading.value =false
+      loading.value = false
     }
   }
 
@@ -80,9 +81,10 @@ export const useTaskStore = defineStore('tasks', () => {
       await fetchTasks()
       return true
     } catch (err: any) {
-      error.value = err.responde?.data?.message || 'Failed to delete task'
+      error.value = err.response?.data?.message || 'Failed to delete task'
+      return false
     } finally {
-      loading.value =false
+      loading.value = false
     }
   }
   async function updateTaskStatus(id: number, status: TaskStatus) {
@@ -117,7 +119,9 @@ export const useTaskStore = defineStore('tasks', () => {
       category_id: '',
       search: '',
       page: 1,
-      limit: 10
+      limit: 10,
+      sort_by: '',
+      sort_order: 'desc',
     }
     fetchTasks()
   }
