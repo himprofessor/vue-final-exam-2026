@@ -21,13 +21,15 @@ export const taskService = {
   // categoryService.create() above. Return type should be
   // ApiResponse<{ task: Task }>.
   create(_payload: TaskPayload) {
-    throw new Error('TODO: implement taskService.create')
+    return api.post<ApiResponse<{ task: Task }>>('/tasks', _payload)
+    // throw new Error('TODO: implement taskService.create')
   },
 
   // TODO: implement `update`.
   // Hint: PUT to `/tasks/${id}` with the payload.
   update(_id: number, _payload: TaskPayload) {
-    throw new Error('TODO: implement taskService.update')
+    return api.put<ApiResponse<{ task: Task }>>(`/tasks/${_id}`, _payload)
+    // throw new Error('TODO: implement taskService.update')
   },
 
   updateStatus(id: number, status: Task['status']) {
@@ -37,6 +39,7 @@ export const taskService = {
   // TODO: implement `remove`.
   // Hint: DELETE `/tasks/${id}`.
   remove(_id: number) {
-    throw new Error('TODO: implement taskService.remove')
+    return api.delete<ApiResponse<null>>(`/tasks/${_id}`)
+    // throw new Error('TODO: implement taskService.remove')
   },
 }
