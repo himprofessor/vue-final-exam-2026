@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// This form component is fully wired up on the UI side. It emits a
-// clean TaskPayload on submit - your job (see stores/tasks.ts TODOs)
-// is to make sure something actually handles that payload end-to-end.
 import { ref, watch } from 'vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
@@ -54,6 +51,7 @@ const priorityOptions = [
 
 function handleSubmit() {
   titleError.value = ''
+
   if (!title.value.trim()) {
     titleError.value = 'Title is required'
     return
@@ -71,19 +69,27 @@ function handleSubmit() {
 </script>
 
 <template>
-  <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
-    <BaseInput v-model="title" label="Title" placeholder="e.g. Finish exam project" required :error="titleError" />
-
+  <form class="flex flex-col gap-4" id="task-form" @submit.prevent="handleSubmit">
+    <BaseInput
+      v-model="title"
+      label="Title"
+      placeholder="e.g. Finish exam project"
+      required
+      :error="titleError"
+    />
     <div>
       <label class="mb-1 block text-sm font-medium text-gray-700">Description</label>
-      <textarea v-model="description" rows="3" class="input-field" placeholder="Optional details..." />
+      <textarea
+        v-model="description"
+        rows="3"
+        class="input-field"
+        placeholder="Optional details..."
+      />
     </div>
-
     <div class="grid grid-cols-2 gap-4">
       <BaseSelect v-model="status" label="Status" :options="statusOptions" />
       <BaseSelect v-model="priority" label="Priority" :options="priorityOptions" />
     </div>
-
     <div class="grid grid-cols-2 gap-4">
       <BaseInput v-model="dueDate" type="date" label="Due date" />
       <BaseSelect
@@ -93,10 +99,13 @@ function handleSubmit() {
         :options="categories.map((c) => ({ value: c.id, label: c.name }))"
       />
     </div>
-
     <div class="mt-2 flex justify-end gap-3">
-      <BaseButton variant="secondary" type="button" @click="$emit('cancel')">Cancel</BaseButton>
-      <BaseButton type="submit" :loading="loading">Save Task</BaseButton>
+      <BaseButton variant="secondary" type="button" @click="$emit('cancel')">
+        Cancel
+      </BaseButton>
+      <BaseButton type="submit" form="task-form" :loading="loading">
+        Save Task
+      </BaseButton>
     </div>
   </form>
 </template>

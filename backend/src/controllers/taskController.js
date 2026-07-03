@@ -93,3 +93,4 @@ const remove = catchAsync(async (req, res, next) => {
 });
 
 module.exports = { getAll, getOne, create, update, updateStatus, remove };
+

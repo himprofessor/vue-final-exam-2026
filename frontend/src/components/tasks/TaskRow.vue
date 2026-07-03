@@ -58,5 +58,6 @@ const statusLabel: Record<TaskStatus, string> = {
         </button>
       </div>
     </td>
+    
   </tr>
 </template>
