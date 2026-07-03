@@ -8,10 +8,11 @@
 // tasks will fail - that's expected. Use CategoriesView.vue as your
 // reference for the exact pattern to follow.
 // =====================================================================
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch, onUnmounted } from 'vue'
 import { useTaskStore } from '@/stores/tasks'
 import { useCategoryStore } from '@/stores/categories'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
 import BaseModal from '@/components/ui/BaseModal.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
@@ -86,6 +87,22 @@ function handleCategoryFilter(value: string) {
   taskStore.setFilters({ category_id: value ? Number(value) : '' })
 }
 
+// ---- Debounced search ---------------------------------------------------
+const searchQuery = ref(taskStore.filters.search || '')
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
+
+watch(searchQuery, (newVal) => {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    taskStore.setFilters({ search: newVal || '' })
+  }, 300)
+})
+
+onUnmounted(() => {
+  if (searchTimeout) clearTimeout(searchTimeout)
+})
+// --------------------------------------------------------------------------
+
 function goToPage(page: number) {
   taskStore.setFilters({ page })
 }
@@ -109,6 +126,10 @@ const statusFilterOptions = [
 
     <!-- Filters -->
     <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <BaseInput
+        v-model="searchQuery"
+        placeholder="Search tasks by title…"
+      />
       <BaseSelect
         :model-value="taskStore.filters.status || ''"
         placeholder="All statuses"
