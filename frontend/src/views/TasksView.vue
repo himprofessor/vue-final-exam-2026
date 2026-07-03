@@ -104,11 +104,11 @@ const statusFilterOptions = [
         <h1 class="text-2xl font-semibold text-gray-900">Tasks</h1>
         <p class="text-sm text-gray-500">Manage and track all of your tasks.</p>
       </div>
-      <BaseButton @click="openCreateModal">+ New Task</BaseButton>
+      <BaseButton class="w-fit" @click="openCreateModal">+ New Task</BaseButton>
     </div>
 
     <!-- Filters -->
-    <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="w-80 mb-4 grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-">
       <BaseSelect
         :model-value="taskStore.filters.status || ''"
         placeholder="All statuses"
