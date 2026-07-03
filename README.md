@@ -219,7 +219,7 @@ This exam evaluates your ability to:
 1. Integrate an API with a Pinia store (not call axios directly from components)
 2. Implement full CRUD operations against a real REST API
 3. Work with one-to-many relational data (tasks ↔ categories, tasks ↔ users)
-4. Handle errors gracefully and show them to the user
+4. Handle errors gracefully and show them to the    user
 5. Build a proper empty-state UI
 6. Build a proper loading-state UI
 7. Write clean, readable code
