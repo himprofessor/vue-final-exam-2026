@@ -11,7 +11,6 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { taskService } from '@/services/taskService'
 import type { Task, TaskPayload, TaskFilters, Pagination, TaskStatus } from '@/types'
-
 export const useTaskStore = defineStore('tasks', () => {
   // ---- state -----------------------------------------------------------
   const tasks = ref<Task[]>([])
@@ -20,9 +19,7 @@ export const useTaskStore = defineStore('tasks', () => {
   const filters = ref<TaskFilters>({ status: '', category_id: '', search: '', page: 1, limit: 10 })
   const loading = ref(false)
   const error = ref<string | null>(null)
-
   // ---- actions -----------------------------------------------------------
-
   // Fully implemented - use this as your reference for the TODOs below.
   async function fetchTasks() {
     loading.value = true
@@ -37,10 +34,8 @@ export const useTaskStore = defineStore('tasks', () => {
       loading.value = false
     }
   }
-
   // -----------------------------------------------------------------------
   // TODO 1: implement createTask(payload)
-  //
   // Requirements:
   //   - set loading = true and clear error before the request
   //   - call taskService.create(payload)  (you also need to finish that
@@ -54,28 +49,61 @@ export const useTaskStore = defineStore('tasks', () => {
   // -----------------------------------------------------------------------
   async function createTask(_payload: TaskPayload) {
     // TODO: replace this with a real implementation
-    throw new Error('TODO: implement createTask in stores/tasks.ts')
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.create(_payload)
+      await fetchTasks() // re-fetch so the list (and any task dropdowns) stay in sync
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to create task.'
+      return false
+    } finally {
+      loading.value = false
+    }
+    // throw new Error('TODO: implement createTask in stores/tasks.ts')
   }
-
   // -----------------------------------------------------------------------
   // TODO 2: implement updateTask(id, payload)
   // Same pattern as createTask, but call taskService.update(id, payload).
   // -----------------------------------------------------------------------
   async function updateTask(_id: number, _payload: TaskPayload) {
     // TODO: replace this with a real implementation
-    throw new Error('TODO: implement updateTask in stores/tasks.ts')
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.update(_id, _payload)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to update task.'
+      return false
+    } finally {
+      loading.value = false
+    }
+    // throw new Error('TODO: implement updateTask in stores/tasks.ts')
   }
-
   // -----------------------------------------------------------------------
   // TODO 3: implement deleteTask(id)
   // Same pattern, but call taskService.remove(id). No payload needed.
   // Remember: this should also re-fetch the list afterwards.
   // -----------------------------------------------------------------------
-  async function deleteTask(_id: number) {
+  async function deleteTask(id: number) {
     // TODO: replace this with a real implementation
-    throw new Error('TODO: implement deleteTask in stores/tasks.ts')
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.remove(id)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to delete task.'
+      return false
+    } finally {
+      loading.value = false
+    }
+    // throw new Error('TODO: implement deleteTask in stores/tasks.ts')
   }
-
   // Provided for you: a small "quick toggle" action so you can see a
   // working example of updating one field without opening the full form.
   async function updateTaskStatus(id: number, status: TaskStatus) {
@@ -92,7 +120,6 @@ export const useTaskStore = defineStore('tasks', () => {
       loading.value = false
     }
   }
-
   // -----------------------------------------------------------------------
   // TODO 4: implement setFilters(newFilters) and resetFilters()
   //
@@ -107,12 +134,20 @@ export const useTaskStore = defineStore('tasks', () => {
   // -----------------------------------------------------------------------
   function setFilters(_newFilters: Partial<TaskFilters>) {
     // TODO: replace this with a real implementation
+    filters.value = { ...filters.value, ..._newFilters }
+    fetchTasks()
   }
-
   function resetFilters() {
     // TODO: replace this with a real implementation
+    filters.value = {
+      status: '',
+      category_id: '',
+      search: '',
+      page: 1,
+      limit: 10
+    }
+    fetchTasks()
   }
-
   return {
     tasks,
     currentTask,

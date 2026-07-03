@@ -267,7 +267,6 @@ Search the codebase for the string `TODO` to find every spot that needs your att
 - 30–45 min: polish, responsive check, manual testing, README of your own changes if requested by your instructor
 
 ---
-
 ## 13. Common Mistakes to Avoid
 
 - **Calling axios directly from a component.** Always go through a store action — that's the whole point of the Pinia integration objective.
