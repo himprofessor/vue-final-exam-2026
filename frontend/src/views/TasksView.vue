@@ -76,14 +76,14 @@ function handleStatusChange(id: number, status: TaskStatus) {
   taskStore.updateTaskStatus(id, status)
 }
 
-// TODO (depends on stores/tasks.ts TODO 4): implement setFilters/resetFilters
-// so these actually re-fetch the list from the API.
+
+
 function handleStatusFilter(value: string) {
-  taskStore.setFilters({ status: value as TaskStatus | '' })
+  taskStore.setFilters({ status: value ? (value as TaskStatus) : undefined })
 }
 
 function handleCategoryFilter(value: string) {
-  taskStore.setFilters({ category_id: value ? Number(value) : '' })
+  taskStore.setFilters({ category_id: value ? Number(value) : undefined })
 }
 
 function goToPage(page: number) {
@@ -91,6 +91,7 @@ function goToPage(page: number) {
 }
 
 const statusFilterOptions = [
+  { value: '', label: 'All statuses' },
   { value: 'todo', label: 'To Do' },
   { value: 'in_progress', label: 'In Progress' },
   { value: 'done', label: 'Done' },
@@ -106,6 +107,8 @@ const statusFilterOptions = [
       </div>
       <BaseButton @click="openCreateModal">+ New Task</BaseButton>
     </div>
+
+   
 
     <!-- Filters -->
     <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">

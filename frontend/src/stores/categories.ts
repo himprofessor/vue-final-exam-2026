@@ -1,14 +1,4 @@
-// =====================================================================
-// Categories store - COMPLETE reference implementation.
-//
-// This store is fully working on purpose: use it as the PATTERN to
-// follow when you complete stores/tasks.ts. Notice the shape every
-// action follows:
-//   1. set loading = true, clear error
-//   2. try { call the service, update state }
-//   3. catch { set a friendly error message }
-//   4. finally { loading = false }
-// =====================================================================
+
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { categoryService } from '@/services/categoryService'

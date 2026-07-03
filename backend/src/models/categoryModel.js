@@ -1,8 +1,7 @@
 const { pool } = require('../config/db');
 
 async function findAll() {
-  // (Bonus idea for students: add a COUNT(tasks.id) to show how many
-  // tasks use each category - a classic "relation query".)
+  
   const [rows] = await pool.query('SELECT * FROM categories ORDER BY created_at DESC');
   return rows;
 }
@@ -30,3 +29,21 @@ async function remove(id) {
 }
 
 module.exports = { findAll, findById, create, update, remove };
+
+Category.findAllWithCounts = function(userId) {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT 
+        c.*,
+        COUNT(t.id) as task_count
+      FROM categories c
+      LEFT JOIN tasks t ON t.category_id = c.id AND t.user_id = ?
+      GROUP BY c.id
+      ORDER BY c.created_at DESC
+    `
+    db.query(query, [userId], (error, results) => {
+      if (error) return reject(error)
+      resolve(results)
+    })
+  })
+}

@@ -1,8 +1,4 @@
-// =====================================================================
-// Auth store - COMPLETE reference implementation.
-// Handles login/register/logout and persists the JWT + user in
-// localStorage so a page refresh doesn't log the user out.
-// =====================================================================
+
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { authService } from '@/services/authService'
@@ -64,5 +60,13 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('taskflow_token')
   }
 
-  return { user, token, loading, error, isAuthenticated, login, register, logout }
+  return { 
+    user, 
+    token, 
+    loading, 
+    error, 
+    isAuthenticated, 
+    login, 
+    register, 
+    logout }
 })

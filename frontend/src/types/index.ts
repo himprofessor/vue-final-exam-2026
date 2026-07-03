@@ -1,9 +1,3 @@
-// =====================================================================
-// Shared TypeScript types
-// Keeping these in one file makes it easy to see the full data model
-// of the app at a glance, and lets every store/component import from
-// the same source of truth.
-// =====================================================================
 
 export interface User {
   id: number
@@ -18,14 +12,13 @@ export interface Category {
   name: string
   color: string
   created_at: string
+  task_count?: number
 }
 
 export type TaskStatus = 'todo' | 'in_progress' | 'done'
 export type TaskPriority = 'low' | 'medium' | 'high'
 
-// This is the shape returned by the API (it comes from a SQL JOIN,
-// so it includes denormalized fields like category_name / owner_name
-// in addition to the raw foreign keys).
+
 export interface Task {
   id: number
   title: string
@@ -77,4 +70,11 @@ export interface ApiResponse<T> {
   success: boolean
   message?: string
   data: T
+}
+export interface Category {
+  id: number
+  name: string
+  color: string
+  created_at: string
+  task_count?: number  // Add this field
 }
