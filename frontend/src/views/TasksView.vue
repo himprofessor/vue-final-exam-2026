@@ -1,13 +1,4 @@
 <script setup lang="ts">
-// =====================================================================
-// Main exam page. The UI/markup here is complete, but it calls actions
-// on the tasks store (createTask/updateTask/deleteTask/setFilters/
-// resetFilters) that you still need to implement in stores/tasks.ts.
-//
-// Until those TODOs are done, creating/editing/deleting/filtering
-// tasks will fail - that's expected. Use CategoriesView.vue as your
-// reference for the exact pattern to follow.
-// =====================================================================
 import { ref, onMounted } from 'vue'
 import { useTaskStore } from '@/stores/tasks'
 import { useCategoryStore } from '@/stores/categories'
@@ -46,8 +37,7 @@ function openEditModal(task: Task) {
 }
 
 async function handleSubmit(payload: TaskPayload) {
-  // TODO (depends on stores/tasks.ts TODO 1 & 2):
-  // once createTask/updateTask are implemented, this will work as-is.
+  
   const success = editingTask.value
     ? await taskStore.updateTask(editingTask.value.id, payload)
     : await taskStore.createTask(payload)
@@ -64,7 +54,6 @@ function askDelete(task: Task) {
 
 async function confirmDelete() {
   if (!taskToDelete.value) return
-  // TODO (depends on stores/tasks.ts TODO 3): implement deleteTask first.
   const success = await taskStore.deleteTask(taskToDelete.value.id)
   if (success) {
     isConfirmOpen.value = false
@@ -76,14 +65,17 @@ function handleStatusChange(id: number, status: TaskStatus) {
   taskStore.updateTaskStatus(id, status)
 }
 
-// TODO (depends on stores/tasks.ts TODO 4): implement setFilters/resetFilters
-// so these actually re-fetch the list from the API.
 function handleStatusFilter(value: string) {
-  taskStore.setFilters({ status: value as TaskStatus | '' })
+  const statusValue = value as TaskStatus | '' 
 }
 
-function handleCategoryFilter(value: string) {
-  taskStore.setFilters({ category_id: value ? Number(value) : '' })
+const handleCategoryFilter = (value: string) => {
+  const categoryValue = value === 'all' || !value ? '' : Number(value)
+  taskStore.setFilters({ category_id: categoryValue})
+}
+function handleSearchFilter(event: Event) {
+  const target = event.target as HTMLInputElement
+  taskStore.setFilters({ search: target.value})
 }
 
 function goToPage(page: number) {
@@ -107,8 +99,44 @@ const statusFilterOptions = [
       <BaseButton @click="openCreateModal">+ New Task</BaseButton>
     </div>
 
+    <div class="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div class="p-4 bg-blue-50 rounded-xl shadow-sm border border-blue-100 flex flex-col justify-between">
+        <span class="text-xs font-semibold uppercase tracking-wider text-blue-600">Total Tasks</span>
+        <span class="text-3xl font-bold text-blue-900 mt-2">{{ taskStore.tasks.length }}</span>
+      </div>
+
+      <div class="p-4 bg-gray-50 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
+        <span class="text-xs font-semibold uppercase tracking-wider text-gray-600">To Do</span>
+        <span class="text-3xl font-bold text-gray-900 mt-2">
+          {{ taskStore.tasks.filter(t => t.status === 'todo').length }}
+        </span>
+      </div>
+
+      <div class="p-4 bg-amber-50 rounded-xl shadow-sm border border-amber-100 flex flex-col justify-between">
+        <span class="text-xs font-semibold uppercase tracking-wider text-amber-600">In Progress</span>
+        <span class="text-3xl font-bold text-amber-900 mt-2">
+          {{ taskStore.tasks.filter(t => t.status === 'in_progress').length }}
+        </span>
+      </div>
+
+      <div class="p-4 bg-emerald-50 rounded-xl shadow-sm border border-emerald-100 flex flex-col justify-between">
+        <span class="text-xs font-semibold uppercase tracking-wider text-emerald-600">Done</span>
+        <span class="text-3xl font-bold text-emerald-900 mt-2">
+          {{ taskStore.tasks.filter(t => t.status === 'done').length }}
+        </span>
+      </div>
+    </div>
+
     <!-- Filters -->
     <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="relative rounded-md shadow-sm">
+        <input
+         type="text"
+         :value="taskStore.filters.search || ''"
+         placeholder="Search tasks..."
+         class="w-full px-4 py-2 border boder-gray-300 rounded-md focus;outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+         @input="handleSearchFilter">
+      </div>
       <BaseSelect
         :model-value="taskStore.filters.status || ''"
         placeholder="All statuses"

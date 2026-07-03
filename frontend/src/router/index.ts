@@ -47,8 +47,6 @@ const router = createRouter({
   ],
 })
 
-// Route guard: redirect unauthenticated users to /login, and redirect
-// already-logged-in users away from /login and /register.
 router.beforeEach((to) => {
   const authStore = useAuthStore()
 

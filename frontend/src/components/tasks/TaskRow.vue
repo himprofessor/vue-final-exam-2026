@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// Demonstrates parent <-> child component communication:
-// props flow down (task), events flow up (edit/delete/status-change).
 import BaseBadge from '@/components/ui/BaseBadge.vue'
 import type { Task, TaskStatus } from '@/types'
 
@@ -47,7 +45,21 @@ const statusLabel: Record<TaskStatus, string> = {
         <option v-for="(label, value) in statusLabel" :key="value" :value="value">{{ label }}</option>
       </select>
     </td>
-    <td class="px-4 py-3 text-sm text-gray-500">{{ task.due_date || '—' }}</td>
+
+   <td class="px-4 py-3 text-sm">
+  <span v-if="!task.due_date" class="text-gray-500">—</span>
+  <span 
+    v-else
+    :class="{
+      'px-2 py-0.5 text-xs font-medium rounded-full': true,
+      'bg-red-100 text-red-800 font-semibold border border-red-200': new Date(task.due_date) < new Date() && task.status !== 'done',
+      'text-gray-600': new Date(task.due_date) >= new Date() || task.status === 'done'
+    }"
+  >
+    {{ task.due_date }} 
+    <span v-if="new Date(task.due_date) < new Date() && task.status !== 'done'" class="text-[10px]">⚠️ Overdue</span>
+  </span>
+</td>
     <td class="px-4 py-3">
       <div class="flex justify-end gap-2">
         <button class="text-sm font-medium text-primary-600 hover:text-primary-700" @click="emit('edit', task)">

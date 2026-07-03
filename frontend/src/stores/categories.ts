@@ -37,7 +37,7 @@ export const useCategoryStore = defineStore('categories', () => {
     error.value = null
     try {
       await categoryService.create(payload)
-      await fetchCategories() // re-fetch so the list (and any task dropdowns) stay in sync
+      await fetchCategories() 
       return true
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create category.'
