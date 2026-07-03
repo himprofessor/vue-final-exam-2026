@@ -19,3 +19,4 @@ export const authService = {
     return api.get<ApiResponse<{ user: User }>>('/auth/me')
   },
 }
+
