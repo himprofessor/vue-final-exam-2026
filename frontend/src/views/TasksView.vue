@@ -1,17 +1,10 @@
 <script setup lang="ts">
-// =====================================================================
-// Main exam page. The UI/markup here is complete, but it calls actions
-// on the tasks store (createTask/updateTask/deleteTask/setFilters/
-// resetFilters) that you still need to implement in stores/tasks.ts.
-//
-// Until those TODOs are done, creating/editing/deleting/filtering
-// tasks will fail - that's expected. Use CategoriesView.vue as your
-// reference for the exact pattern to follow.
-// =====================================================================
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useTaskStore } from '@/stores/tasks'
 import { useCategoryStore } from '@/stores/categories'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
 import BaseModal from '@/components/ui/BaseModal.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
@@ -22,6 +15,10 @@ import TaskForm from '@/components/tasks/TaskForm.vue'
 import TaskRow from '@/components/tasks/TaskRow.vue'
 import type { Task, TaskPayload, TaskStatus } from '@/types'
 
+
+const route = useRoute()
+const router = useRouter()
+
 const taskStore = useTaskStore()
 const categoryStore = useCategoryStore()
 
@@ -30,10 +27,48 @@ const editingTask = ref<Task | null>(null)
 const isConfirmOpen = ref(false)
 const taskToDelete = ref<Task | null>(null)
 
+// Search with 300ms debounce
+const searchQuery = ref(taskStore.filters.search || '')
+let debounceTimer: ReturnType<typeof setTimeout>
+watch(searchQuery, (val) => {
+  clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(() => {
+    taskStore.setFilters({ search: val || '' })
+  }, 300)
+})
+
+// Restore filters from URL query params on mount
 onMounted(() => {
+  const q = route.query
+  if (q.status || q.category_id || q.search || q.page) {
+    taskStore.setFilters({
+      status: (q.status as TaskStatus) || '',
+      category_id: q.category_id ? Number(q.category_id) : '',
+      search: (q.search as string) || '',
+      page: q.page ? Number(q.page) : 1,
+    })
+    // Sync search input with restored query
+    if (q.search) searchQuery.value = q.search as string
+  }
   taskStore.fetchTasks()
   categoryStore.fetchCategories()
 })
+
+// Sync filters to URL query string (deep watch, debounced to avoid loops)
+watch(
+  () => ({ ...taskStore.filters, sort_by: taskStore.sortField, sort_order: taskStore.sortOrder }),
+  (f) => {
+    const query: Record<string, string | number> = {}
+    if (f.status) query.status = f.status
+    if (f.category_id) query.category_id = f.category_id
+    if (f.search) query.search = f.search
+    if (f.page && f.page > 1) query.page = f.page
+    if (f.sort_by && f.sort_by !== 'created_at') query.sort_by = f.sort_by
+    if (f.sort_order && f.sort_order !== 'desc') query.sort_order = f.sort_order
+    router.replace({ query })
+  },
+  { deep: true }
+)
 
 function openCreateModal() {
   editingTask.value = null
@@ -46,8 +81,6 @@ function openEditModal(task: Task) {
 }
 
 async function handleSubmit(payload: TaskPayload) {
-  // TODO (depends on stores/tasks.ts TODO 1 & 2):
-  // once createTask/updateTask are implemented, this will work as-is.
   const success = editingTask.value
     ? await taskStore.updateTask(editingTask.value.id, payload)
     : await taskStore.createTask(payload)
@@ -64,7 +97,6 @@ function askDelete(task: Task) {
 
 async function confirmDelete() {
   if (!taskToDelete.value) return
-  // TODO (depends on stores/tasks.ts TODO 3): implement deleteTask first.
   const success = await taskStore.deleteTask(taskToDelete.value.id)
   if (success) {
     isConfirmOpen.value = false
@@ -76,8 +108,6 @@ function handleStatusChange(id: number, status: TaskStatus) {
   taskStore.updateTaskStatus(id, status)
 }
 
-// TODO (depends on stores/tasks.ts TODO 4): implement setFilters/resetFilters
-// so these actually re-fetch the list from the API.
 function handleStatusFilter(value: string) {
   taskStore.setFilters({ status: value as TaskStatus | '' })
 }
@@ -107,8 +137,13 @@ const statusFilterOptions = [
       <BaseButton @click="openCreateModal">+ New Task</BaseButton>
     </div>
 
-    <!-- Filters -->
-    <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- Search + Filters -->
+    <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <BaseInput
+        v-model="searchQuery"
+        placeholder="Search tasks..."
+        class="lg:col-span-1"
+      />
       <BaseSelect
         :model-value="taskStore.filters.status || ''"
         placeholder="All statuses"
@@ -121,6 +156,13 @@ const statusFilterOptions = [
         :options="categoryStore.categories.map((c) => ({ value: c.id, label: c.name }))"
         @update:model-value="handleCategoryFilter"
       />
+      <BaseButton
+        variant="secondary"
+        :disabled="!taskStore.tasks.length || taskStore.loading"
+        @click="taskStore.markAllAsDone()"
+      >
+        Mark All Done
+      </BaseButton>
     </div>
 
     <ErrorAlert v-if="taskStore.error" :message="taskStore.error" class="mb-4" @dismiss="taskStore.error = null" />
@@ -141,11 +183,29 @@ const statusFilterOptions = [
       <table class="w-full text-left">
         <thead class="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
           <tr>
-            <th class="px-4 py-3 font-medium">Title</th>
+            <th
+              class="cursor-pointer select-none px-4 py-3 font-medium hover:text-gray-700"
+              @click="taskStore.setSorting('title')"
+            >
+              Title
+              <span v-if="taskStore.sortField === 'title'" class="ml-1">{{ taskStore.sortOrder === 'asc' ? '\u25B2' : '\u25BC' }}</span>
+            </th>
             <th class="px-4 py-3 font-medium">Category</th>
-            <th class="px-4 py-3 font-medium">Priority</th>
+            <th
+              class="cursor-pointer select-none px-4 py-3 font-medium hover:text-gray-700"
+              @click="taskStore.setSorting('priority')"
+            >
+              Priority
+              <span v-if="taskStore.sortField === 'priority'" class="ml-1">{{ taskStore.sortOrder === 'asc' ? '\u25B2' : '\u25BC' }}</span>
+            </th>
             <th class="px-4 py-3 font-medium">Status</th>
-            <th class="px-4 py-3 font-medium">Due</th>
+            <th
+              class="cursor-pointer select-none px-4 py-3 font-medium hover:text-gray-700"
+              @click="taskStore.setSorting('due_date')"
+            >
+              Due
+              <span v-if="taskStore.sortField === 'due_date'" class="ml-1">{{ taskStore.sortOrder === 'asc' ? '\u25B2' : '\u25BC' }}</span>
+            </th>
             <th class="px-4 py-3 font-medium text-right">Actions</th>
           </tr>
         </thead>

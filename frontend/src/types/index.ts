@@ -68,6 +68,8 @@ export interface TaskFilters {
   status?: TaskStatus | ''
   category_id?: number | ''
   search?: string
+  sort_by?: 'created_at' | 'due_date' | 'priority' | 'title' | 'status'
+  sort_order?: 'asc' | 'desc'
   page?: number
   limit?: number
 }

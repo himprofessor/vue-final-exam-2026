@@ -2,16 +2,18 @@ const catchAsync = require('../middleware/catchAsync');
 const AppError = require('../utils/AppError');
 const taskModel = require('../models/taskModel');
 
-// GET /api/tasks?status=&category_id=&search=&page=&limit=
+// GET /api/tasks?status=&category_id=&search=&sort_by=&sort_order=&page=&limit=
 // Tasks are always scoped to the logged-in user (req.user.id) - this is
 // the "users -> tasks" one-to-many relationship in action.
 const getAll = catchAsync(async (req, res) => {
-  const { status, category_id, search, page, limit } = req.query;
+  const { status, category_id, search, sort_by, sort_order, page, limit } = req.query;
 
   const result = await taskModel.findAllForUser(req.user.id, {
     status,
     categoryId: category_id,
     search,
+    sortBy: sort_by,
+    sortOrder: sort_order,
     page: page || 1,
     limit: limit || 10,
   });

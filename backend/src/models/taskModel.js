@@ -19,10 +19,14 @@ const BASE_SELECT = `
   LEFT JOIN users u      ON u.id = t.user_id
 `;
 
-// Supports optional filtering (status, category_id, search) and simple
-// pagination - this satisfies the "Pagination or filtering" bonus
-// requirement from the exam brief.
-async function findAllForUser(userId, { status, categoryId, search, page = 1, limit = 10 }) {
+// Whitelist of allowed sort columns — prevents SQL injection in ORDER BY.
+const SORT_COLUMNS = ['created_at', 'due_date', 'priority', 'title', 'status'];
+const SORT_ORDERS = ['asc', 'desc'];
+
+// Supports optional filtering (status, category_id, search), sorting,
+// and simple pagination - this satisfies the "Pagination or filtering" and
+// "Sorting" bonus requirements from the exam brief.
+async function findAllForUser(userId, { status, categoryId, search, sortBy, sortOrder, page = 1, limit = 10 }) {
   const conditions = ['t.user_id = ?'];
   const params = [userId];
 
@@ -42,8 +46,12 @@ async function findAllForUser(userId, { status, categoryId, search, page = 1, li
   const where = `WHERE ${conditions.join(' AND ')}`;
   const offset = (Number(page) - 1) * Number(limit);
 
+  // Safe sort column/order with fallback
+  const safeSortBy = SORT_COLUMNS.includes(sortBy) ? sortBy : 'created_at';
+  const safeSortOrder = SORT_ORDERS.includes(sortOrder) ? sortOrder : 'desc';
+
   const [rows] = await pool.query(
-    `${BASE_SELECT} ${where} ORDER BY t.created_at DESC LIMIT ? OFFSET ?`,
+    `${BASE_SELECT} ${where} ORDER BY t.${safeSortBy} ${safeSortOrder} LIMIT ? OFFSET ?`,
     [...params, Number(limit), offset]
   );
 
