@@ -8,41 +8,48 @@
 // tasks will fail - that's expected. Use CategoriesView.vue as your
 // reference for the exact pattern to follow.
 // =====================================================================
-import { ref, onMounted } from 'vue'
-import { useTaskStore } from '@/stores/tasks'
-import { useCategoryStore } from '@/stores/categories'
-import BaseButton from '@/components/ui/BaseButton.vue'
-import BaseSelect from '@/components/ui/BaseSelect.vue'
-import BaseModal from '@/components/ui/BaseModal.vue'
-import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
-import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
-import EmptyState from '@/components/ui/EmptyState.vue'
-import ErrorAlert from '@/components/ui/ErrorAlert.vue'
-import TaskForm from '@/components/tasks/TaskForm.vue'
-import TaskRow from '@/components/tasks/TaskRow.vue'
-import type { Task, TaskPayload, TaskStatus } from '@/types'
+import { ref, onMounted } from "vue";
+import { useTaskStore } from "@/stores/tasks";
+import { useCategoryStore } from "@/stores/categories";
+import BaseButton from "@/components/ui/BaseButton.vue";
+import BaseSelect from "@/components/ui/BaseSelect.vue";
+import BaseModal from "@/components/ui/BaseModal.vue";
+import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
+import LoadingSpinner from "@/components/ui/LoadingSpinner.vue";
+import EmptyState from "@/components/ui/EmptyState.vue";
+import ErrorAlert from "@/components/ui/ErrorAlert.vue";
+import TaskForm from "@/components/tasks/TaskForm.vue";
+import TaskRow from "@/components/tasks/TaskRow.vue";
+import BaseInput from "@/components/ui/BaseInput.vue";
+import type { Task, TaskPayload, TaskStatus } from "@/types";
 
-const taskStore = useTaskStore()
-const categoryStore = useCategoryStore()
+const taskStore = useTaskStore();
+const categoryStore = useCategoryStore();
 
-const isModalOpen = ref(false)
-const editingTask = ref<Task | null>(null)
-const isConfirmOpen = ref(false)
-const taskToDelete = ref<Task | null>(null)
+const isModalOpen = ref(false);
+const editingTask = ref<Task | null>(null);
+const isConfirmOpen = ref(false);
+const taskToDelete = ref<Task | null>(null);
 
-onMounted(() => {
-  taskStore.fetchTasks()
-  categoryStore.fetchCategories()
-})
+onMounted(async() => {
+  taskStore.fetchTasks();
+  categoryStore.fetchCategories();
+  taskStore.setFilters({
+    status: loadFiltersFromURL("status") as TaskStatus | "",
+    category_id: loadFiltersFromURL("cate")
+      ? Number(loadFiltersFromURL("cate"))
+      : "",
+  });
+});
 
 function openCreateModal() {
-  editingTask.value = null
-  isModalOpen.value = true
+  editingTask.value = null;
+  isModalOpen.value = true;
 }
 
 function openEditModal(task: Task) {
-  editingTask.value = task
-  isModalOpen.value = true
+  editingTask.value = task;
+  isModalOpen.value = true;
 }
 
 async function handleSubmit(payload: TaskPayload) {
@@ -50,56 +57,83 @@ async function handleSubmit(payload: TaskPayload) {
   // once createTask/updateTask are implemented, this will work as-is.
   const success = editingTask.value
     ? await taskStore.updateTask(editingTask.value.id, payload)
-    : await taskStore.createTask(payload)
+    : await taskStore.createTask(payload);
 
   if (success) {
-    isModalOpen.value = false
+    isModalOpen.value = false;
   }
 }
 
 function askDelete(task: Task) {
-  taskToDelete.value = task
-  isConfirmOpen.value = true
+  taskToDelete.value = task;
+  isConfirmOpen.value = true;
 }
 
 async function confirmDelete() {
-  if (!taskToDelete.value) return
+  if (!taskToDelete.value) return;
   // TODO (depends on stores/tasks.ts TODO 3): implement deleteTask first.
-  const success = await taskStore.deleteTask(taskToDelete.value.id)
+  const success = await taskStore.deleteTask(taskToDelete.value.id);
   if (success) {
-    isConfirmOpen.value = false
-    taskToDelete.value = null
+    isConfirmOpen.value = false;
+    taskToDelete.value = null;
   }
 }
 
 function handleStatusChange(id: number, status: TaskStatus) {
-  taskStore.updateTaskStatus(id, status)
+  taskStore.updateTaskStatus(id, status);
 }
 
 // TODO (depends on stores/tasks.ts TODO 4): implement setFilters/resetFilters
 // so these actually re-fetch the list from the API.
 function handleStatusFilter(value: string) {
-  taskStore.setFilters({ status: value as TaskStatus | '' })
+  taskStore.setFilters({ status: value as TaskStatus | "" });
+  updateURLForm("status", value);
 }
 
 function handleCategoryFilter(value: string) {
-  taskStore.setFilters({ category_id: value ? Number(value) : '' })
+  taskStore.setFilters({ category_id: value ? Number(value) : "" });
+  updateURLForm("cate", value);
+}
+
+function handleSearch(value: string) {
+  taskStore.setFilters({ search: value });
 }
 
 function goToPage(page: number) {
-  taskStore.setFilters({ page })
+  taskStore.setFilters({ page });
+}
+
+function updateURLForm(key: any, value: any) {
+  const urlParams = new URLSearchParams(window.location.search);
+
+  if (value) {
+    urlParams.set(key, String(value));
+  } else {
+    urlParams.delete(String(key));
+  }
+  const newRelativePathQuery =
+    window.location.pathname + "?" + urlParams.toString();
+  history.pushState(null, "", newRelativePathQuery);
+}
+
+function loadFiltersFromURL(key: any) {
+  const urlParams = new URLSearchParams(window.location.search);
+
+  return urlParams.get(key) || "";
 }
 
 const statusFilterOptions = [
-  { value: 'todo', label: 'To Do' },
-  { value: 'in_progress', label: 'In Progress' },
-  { value: 'done', label: 'Done' },
-]
+  { value: "todo", label: "To Do" },
+  { value: "in_progress", label: "In Progress" },
+  { value: "done", label: "Done" },
+];
 </script>
 
 <template>
   <div>
-    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div
+      class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+    >
       <div>
         <h1 class="text-2xl font-semibold text-gray-900">Tasks</h1>
         <p class="text-sm text-gray-500">Manage and track all of your tasks.</p>
@@ -110,22 +144,39 @@ const statusFilterOptions = [
     <!-- Filters -->
     <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
       <BaseSelect
-        :model-value="taskStore.filters.status || ''"
+        :model-value="taskStore.filters.status || loadFiltersFromURL('status')"
         placeholder="All statuses"
         :options="statusFilterOptions"
         @update:model-value="handleStatusFilter"
       />
       <BaseSelect
-        :model-value="taskStore.filters.category_id || ''"
+        :model-value="
+          taskStore.filters.category_id || loadFiltersFromURL('cate')
+        "
         placeholder="All categories"
-        :options="categoryStore.categories.map((c) => ({ value: c.id, label: c.name }))"
+        :options="
+          categoryStore.categories.map((c) => ({ value: c.id, label: c.name }))
+        "
         @update:model-value="handleCategoryFilter"
+      />
+      <BaseInput
+        model-value=""
+        placeholder="search tasks here..."
+        @update:model-value="handleSearch"
       />
     </div>
 
-    <ErrorAlert v-if="taskStore.error" :message="taskStore.error" class="mb-4" @dismiss="taskStore.error = null" />
+    <ErrorAlert
+      v-if="taskStore.error"
+      :message="taskStore.error"
+      class="mb-4"
+      @dismiss="taskStore.error = null"
+    />
 
-    <LoadingSpinner v-if="taskStore.loading && !taskStore.tasks.length" label="Loading tasks..." />
+    <LoadingSpinner
+      v-if="taskStore.loading && !taskStore.tasks.length"
+      label="Loading tasks..."
+    />
 
     <EmptyState
       v-else-if="!taskStore.tasks.length"
@@ -139,7 +190,9 @@ const statusFilterOptions = [
 
     <div v-else class="card overflow-x-auto">
       <table class="w-full text-left">
-        <thead class="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+        <thead
+          class="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500"
+        >
           <tr>
             <th class="px-4 py-3 font-medium">Title</th>
             <th class="px-4 py-3 font-medium">Category</th>
@@ -163,8 +216,14 @@ const statusFilterOptions = [
     </div>
 
     <!-- Pagination -->
-    <div v-if="taskStore.pagination.totalPages > 1" class="mt-4 flex items-center justify-between text-sm text-gray-500">
-      <span>Page {{ taskStore.pagination.page }} of {{ taskStore.pagination.totalPages }}</span>
+    <div
+      v-if="taskStore.pagination.totalPages > 1"
+      class="mt-4 flex items-center justify-between text-sm text-gray-500"
+    >
+      <span
+        >Page {{ taskStore.pagination.page }} of
+        {{ taskStore.pagination.totalPages }}</span
+      >
       <div class="flex gap-2">
         <BaseButton
           variant="secondary"
@@ -175,7 +234,9 @@ const statusFilterOptions = [
         </BaseButton>
         <BaseButton
           variant="secondary"
-          :disabled="taskStore.pagination.page >= taskStore.pagination.totalPages"
+          :disabled="
+            taskStore.pagination.page >= taskStore.pagination.totalPages
+          "
           @click="goToPage(taskStore.pagination.page + 1)"
         >
           Next
@@ -183,7 +244,10 @@ const statusFilterOptions = [
       </div>
     </div>
 
-    <BaseModal v-model="isModalOpen" :title="editingTask ? 'Edit Task' : 'New Task'">
+    <BaseModal
+      v-model="isModalOpen"
+      :title="editingTask ? 'Edit Task' : 'New Task'"
+    >
       <TaskForm
         :task="editingTask"
         :categories="categoryStore.categories"
