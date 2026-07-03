@@ -24,7 +24,7 @@ The backend API is fully implemented and documented below. Most of the **fronten
 - Filtering by status and category, plus pagination
 - Loading, error, and empty states on every data view
 - Reusable UI components (button, input, select, modal, confirm dialog, badge, spinner, empty state, error alert)
-- Responsive layout with a sidebar + header shell
+- Responsive layout with a sidebar + header shell 
 
 ## 3. Technologies Used
 
