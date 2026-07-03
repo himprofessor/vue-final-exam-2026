@@ -23,7 +23,6 @@ export const useTaskStore = defineStore('tasks', () => {
 
   // ---- actions -----------------------------------------------------------
 
-  // Fully implemented - use this as your reference for the TODOs below.
   async function fetchTasks() {
     loading.value = true
     error.value = null
@@ -52,32 +51,59 @@ export const useTaskStore = defineStore('tasks', () => {
   //   - return true on success, false on failure (so the component
   //     calling this action knows whether to close the modal)
   // -----------------------------------------------------------------------
-  async function createTask(_payload: TaskPayload) {
-    // TODO: replace this with a real implementation
-    throw new Error('TODO: implement createTask in stores/tasks.ts')
+
+  // TODO 1: Completed createTask(payload)
+  async function createTask(payload: TaskPayload) {
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.create(payload)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to create task.'
+      return false
+    } finally {
+      loading.value = false
+    }
   }
 
-  // -----------------------------------------------------------------------
-  // TODO 2: implement updateTask(id, payload)
+  // TODO 2: Completed updateTask(id, payload)
   // Same pattern as createTask, but call taskService.update(id, payload).
-  // -----------------------------------------------------------------------
-  async function updateTask(_id: number, _payload: TaskPayload) {
-    // TODO: replace this with a real implementation
-    throw new Error('TODO: implement updateTask in stores/tasks.ts')
+  async function updateTask(id: number, payload: TaskPayload) {
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.update(id, payload)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to update task.'
+      return false
+    } finally {
+      loading.value = false
+    }
   }
 
-  // -----------------------------------------------------------------------
-  // TODO 3: implement deleteTask(id)
+  // TODO 3: Completed deleteTask(id)
   // Same pattern, but call taskService.remove(id). No payload needed.
   // Remember: this should also re-fetch the list afterwards.
-  // -----------------------------------------------------------------------
-  async function deleteTask(_id: number) {
-    // TODO: replace this with a real implementation
-    throw new Error('TODO: implement deleteTask in stores/tasks.ts')
+  async function deleteTask(id: number) {
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.remove(id)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to delete task.'
+      return false
+    } finally {
+      loading.value = false
+    }
   }
-
-  // Provided for you: a small "quick toggle" action so you can see a
-  // working example of updating one field without opening the full form.
+// Provided for you: a small "quick toggle" action so you can see a
+// working example of updating one field without opening the full form
   async function updateTaskStatus(id: number, status: TaskStatus) {
     loading.value = true
     error.value = null
@@ -93,8 +119,7 @@ export const useTaskStore = defineStore('tasks', () => {
     }
   }
 
-  // -----------------------------------------------------------------------
-  // TODO 4: implement setFilters(newFilters) and resetFilters()
+  // TODO 4: Completed setFilters(newFilters) and resetFilters()
   //
   // setFilters should:
   //   - merge newFilters into filters.value
@@ -104,13 +129,26 @@ export const useTaskStore = defineStore('tasks', () => {
   //
   // resetFilters should restore filters.value to the default shown in
   // the `filters` ref above, then call fetchTasks().
-  // -----------------------------------------------------------------------
-  function setFilters(_newFilters: Partial<TaskFilters>) {
-    // TODO: replace this with a real implementation
+  function setFilters(newFilters: Partial<TaskFilters>) {
+    filters.value = { ...filters.value, ...newFilters }
+    
+    // Only drop back to page 1 if the user isn't actively changing pages
+    if (!('page' in newFilters)) {
+      filters.value.page = 1
+    }
+    
+    fetchTasks()
   }
 
   function resetFilters() {
-    // TODO: replace this with a real implementation
+    filters.value = {
+      status: '',
+      category_id: '',
+      search: '',
+      page: 1,
+      limit: 10
+    }
+    fetchTasks()
   }
 
   return {
