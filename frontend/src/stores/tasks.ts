@@ -54,7 +54,27 @@ export const useTaskStore = defineStore('tasks', () => {
   // -----------------------------------------------------------------------
   async function createTask(_payload: TaskPayload) {
     // TODO: replace this with a real implementation
-    throw new Error('TODO: implement createTask in stores/tasks.ts')
+    // throw new Error('TODO: implement createTask in stores/tasks.ts')
+    const newTask: TaskPayload = {
+      title: _payload.title,
+      description: _payload.description,
+      status: 'todo' as TaskStatus, 
+      priority: _payload.priority, 
+      due_date: _payload.due_date ?? null,
+      category_id: _payload.category_id ?? null,
+    }
+    loading.value = true
+    error.value = null
+
+    try {
+      const saveTask = await taskService.create(newTask);
+      await fetchTasks();
+      return true;
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to creaet task.'
+    } finally {
+      loading.value = false
+    }
   }
 
   // -----------------------------------------------------------------------
@@ -63,7 +83,21 @@ export const useTaskStore = defineStore('tasks', () => {
   // -----------------------------------------------------------------------
   async function updateTask(_id: number, _payload: TaskPayload) {
     // TODO: replace this with a real implementation
-    throw new Error('TODO: implement updateTask in stores/tasks.ts')
+    // throw new Error('TODO: implement updateTask in stores/tasks.ts')
+    loading.value = true
+    error.value = null
+    try {
+      const task = await taskService.getOne(_id);
+      await taskService.update(_id, _payload);
+      await fetchTasks();
+      return true
+    }catch(err: any){
+      error.value = err.response?.data?.message || 'Failed to updated task.'
+    }
+    finally{
+      loading.value = false
+    }
+   
   }
 
   // -----------------------------------------------------------------------
@@ -73,7 +107,19 @@ export const useTaskStore = defineStore('tasks', () => {
   // -----------------------------------------------------------------------
   async function deleteTask(_id: number) {
     // TODO: replace this with a real implementation
-    throw new Error('TODO: implement deleteTask in stores/tasks.ts')
+    // throw new Error('TODO: implement deleteTask in stores/tasks.ts')
+    loading.value = true
+    error.value = null
+    try {
+      const res = await taskService.remove(_id);
+      fetchTasks();
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || "Failed to delete task"
+    } finally {
+      loading.value = false
+    }
+
   }
 
   // Provided for you: a small "quick toggle" action so you can see a
@@ -105,12 +151,24 @@ export const useTaskStore = defineStore('tasks', () => {
   // resetFilters should restore filters.value to the default shown in
   // the `filters` ref above, then call fetchTasks().
   // -----------------------------------------------------------------------
+  const defaultFilters = {
+    page: 1,
+  }
   function setFilters(_newFilters: Partial<TaskFilters>) {
     // TODO: replace this with a real implementation
+    filters.value = {
+      ...filters.value,
+      ..._newFilters,
+      page: 1
+    }
+
+    fetchTasks();
   }
 
   function resetFilters() {
     // TODO: replace this with a real implementation
+    filters.value = {...defaultFilters}
+    fetchTasks();
   }
 
   return {
