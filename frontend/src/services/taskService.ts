@@ -15,12 +15,12 @@ export const taskService = {
     return api.get<ApiResponse<{ task: Task }>>(`/tasks/${id}`)
   },
 
-  // CREATE
+  // CREATE task
   create(_payload: TaskPayload) {
     return api.post<ApiResponse<{ task: Task}>>('/tasks', _payload)
   },
 
-  // UPDATE & UPDATE STATUS
+  // UPDATE & UPDATE STATUS task
   update(_id: number, _payload: TaskPayload) {
     return api.put<ApiResponse<{ task: Task }>>(`/tasks/${_id}`, _payload)
   },
@@ -28,8 +28,14 @@ export const taskService = {
     return api.patch<ApiResponse<{ task: Task }>>(`/tasks/${id}/status`, { status })
   },
 
-  // REMOVE
+  // REMOVE task
   remove(_id: number) {
     return api.delete<ApiResponse<null>>(`/tasks/${_id}`)
   },
 }
+
+
+
+
+
+
