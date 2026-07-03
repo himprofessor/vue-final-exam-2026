@@ -129,6 +129,12 @@ const statusFilterOptions = [
         "
         @update:model-value="handleCategoryFilter"
       />
+      <button
+        class="rounded bg-red-500 px-4 py-2 text-white"
+        @click="taskStore.resetFilters()"
+      >
+        Reset Filters
+      </button>
     </div>
 
     <ErrorAlert
