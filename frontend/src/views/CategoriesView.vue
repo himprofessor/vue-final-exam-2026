@@ -1,8 +1,4 @@
 <script setup lang="ts">
-// COMPLETE reference implementation - study this page to see how the
-// pieces fit together: store <-> service <-> API, plus loading /
-// error / empty states and a create/edit modal. You'll replicate this
-// pattern (with more fields) in TasksView.vue.
 import { ref, onMounted } from 'vue'
 import { useCategoryStore } from '@/stores/categories'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -14,8 +10,8 @@ import ErrorAlert from '@/components/ui/ErrorAlert.vue'
 import CategoryForm from '@/components/categories/CategoryForm.vue'
 import type { Category, CategoryPayload } from '@/types'
 
-const categoryStore = useCategoryStore()
 
+const categoryStore = useCategoryStore()
 const isModalOpen = ref(false)
 const editingCategory = ref<Category | null>(null)
 const isConfirmOpen = ref(false)
@@ -58,6 +54,7 @@ async function confirmDelete() {
     categoryToDelete.value = null
   }
 }
+
 </script>
 
 <template>
