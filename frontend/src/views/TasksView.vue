@@ -1,17 +1,10 @@
 <script setup lang="ts">
-// =====================================================================
-// Main exam page. The UI/markup here is complete, but it calls actions
-// on the tasks store (createTask/updateTask/deleteTask/setFilters/
-// resetFilters) that you still need to implement in stores/tasks.ts.
-//
-// Until those TODOs are done, creating/editing/deleting/filtering
-// tasks will fail - that's expected. Use CategoriesView.vue as your
-// reference for the exact pattern to follow.
-// =====================================================================
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useTaskStore } from '@/stores/tasks'
 import { useCategoryStore } from '@/stores/categories'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
 import BaseModal from '@/components/ui/BaseModal.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
@@ -20,20 +13,57 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorAlert from '@/components/ui/ErrorAlert.vue'
 import TaskForm from '@/components/tasks/TaskForm.vue'
 import TaskRow from '@/components/tasks/TaskRow.vue'
-import type { Task, TaskPayload, TaskStatus } from '@/types'
+import { taskService } from '@/services/taskService'
+import type { Task, TaskPayload, TaskStatus, TaskFilters } from '@/types'
 
 const taskStore = useTaskStore()
 const categoryStore = useCategoryStore()
+const route = useRoute()
+const router = useRouter()
 
 const isModalOpen = ref(false)
 const editingTask = ref<Task | null>(null)
 const isConfirmOpen = ref(false)
 const taskToDelete = ref<Task | null>(null)
+const searchInput = ref('')
+const bulkLoading = ref(false)
 
 onMounted(() => {
-  taskStore.fetchTasks()
+  const q = route.query
+  const initial: Partial<TaskFilters> = {}
+  if (q.status) initial.status = q.status as TaskStatus
+  if (q.category_id) initial.category_id = Number(q.category_id)
+  if (q.search) {
+    initial.search = q.search as string
+    searchInput.value = q.search as string
+  }
+  if (q.sort_by) initial.sort_by = q.sort_by as 'due_date' | 'priority'
+  if (q.sort_order) initial.sort_order = q.sort_order as 'asc' | 'desc'
+  if (q.page) initial.page = Number(q.page)
+
+  taskStore.setFilters(initial)
   categoryStore.fetchCategories()
 })
+
+let searchTimer: ReturnType<typeof setTimeout> | null = null
+watch(searchInput, (val) => {
+  if (searchTimer) clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    taskStore.setFilters({ search: val || '' })
+    syncFiltersToUrl()
+  }, 300)
+})
+
+function syncFiltersToUrl() {
+  const q: Record<string, string> = {}
+  if (taskStore.filters.status) q.status = taskStore.filters.status
+  if (taskStore.filters.category_id) q.category_id = String(taskStore.filters.category_id)
+  if (taskStore.filters.search) q.search = taskStore.filters.search
+  if (taskStore.filters.sort_by) q.sort_by = taskStore.filters.sort_by
+  if (taskStore.filters.sort_order && taskStore.filters.sort_order !== 'desc') q.sort_order = taskStore.filters.sort_order
+  if (taskStore.filters.page && taskStore.filters.page > 1) q.page = String(taskStore.filters.page)
+  router.replace({ query: q })
+}
 
 function openCreateModal() {
   editingTask.value = null
@@ -46,8 +76,6 @@ function openEditModal(task: Task) {
 }
 
 async function handleSubmit(payload: TaskPayload) {
-  // TODO (depends on stores/tasks.ts TODO 1 & 2):
-  // once createTask/updateTask are implemented, this will work as-is.
   const success = editingTask.value
     ? await taskStore.updateTask(editingTask.value.id, payload)
     : await taskStore.createTask(payload)
@@ -64,7 +92,6 @@ function askDelete(task: Task) {
 
 async function confirmDelete() {
   if (!taskToDelete.value) return
-  // TODO (depends on stores/tasks.ts TODO 3): implement deleteTask first.
   const success = await taskStore.deleteTask(taskToDelete.value.id)
   if (success) {
     isConfirmOpen.value = false
@@ -76,24 +103,54 @@ function handleStatusChange(id: number, status: TaskStatus) {
   taskStore.updateTaskStatus(id, status)
 }
 
-// TODO (depends on stores/tasks.ts TODO 4): implement setFilters/resetFilters
-// so these actually re-fetch the list from the API.
 function handleStatusFilter(value: string) {
   taskStore.setFilters({ status: value as TaskStatus | '' })
+  syncFiltersToUrl()
 }
 
 function handleCategoryFilter(value: string) {
   taskStore.setFilters({ category_id: value ? Number(value) : '' })
+  syncFiltersToUrl()
+}
+
+function handleSortChange(sortBy: string) {
+  if (sortBy === taskStore.filters.sort_by) {
+    const next = taskStore.filters.sort_order === 'asc' ? 'desc' : 'asc'
+    taskStore.setFilters({ sort_by: sortBy as 'due_date' | 'priority', sort_order: next })
+  } else {
+    taskStore.setFilters({ sort_by: sortBy as 'due_date' | 'priority', sort_order: 'asc' })
+  }
+  syncFiltersToUrl()
+}
+
+async function handleMarkAllDone() {
+  bulkLoading.value = true
+  try {
+    await taskService.bulkMarkDone({
+      status: taskStore.filters.status,
+      category_id: taskStore.filters.category_id ? String(taskStore.filters.category_id) : undefined,
+      search: taskStore.filters.search,
+    })
+    await taskStore.fetchTasks()
+  } finally {
+    bulkLoading.value = false
+  }
 }
 
 function goToPage(page: number) {
   taskStore.setFilters({ page })
+  syncFiltersToUrl()
 }
 
 const statusFilterOptions = [
   { value: 'todo', label: 'To Do' },
   { value: 'in_progress', label: 'In Progress' },
   { value: 'done', label: 'Done' },
+]
+
+const sortOptions = [
+  { value: 'due_date', label: 'Due Date' },
+  { value: 'priority', label: 'Priority' },
 ]
 </script>
 
@@ -108,7 +165,11 @@ const statusFilterOptions = [
     </div>
 
     <!-- Filters -->
-    <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <BaseInput
+        v-model="searchInput"
+        placeholder="Search tasks..."
+      />
       <BaseSelect
         :model-value="taskStore.filters.status || ''"
         placeholder="All statuses"
@@ -121,6 +182,34 @@ const statusFilterOptions = [
         :options="categoryStore.categories.map((c) => ({ value: c.id, label: c.name }))"
         @update:model-value="handleCategoryFilter"
       />
+      <div class="flex gap-2">
+        <BaseSelect
+          :model-value="taskStore.filters.sort_by || ''"
+          placeholder="Sort by"
+          :options="sortOptions"
+          @update:model-value="handleSortChange"
+        />
+        <button
+          v-if="taskStore.filters.sort_by"
+          class="rounded-lg border border-gray-300 px-2 text-sm hover:bg-gray-100"
+          @click="handleSortChange(taskStore.filters.sort_by)"
+          :title="taskStore.filters.sort_order === 'asc' ? 'Ascending' : 'Descending'"
+        >
+          {{ taskStore.filters.sort_order === 'asc' ? '↑' : '↓' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Bulk actions -->
+    <div class="mb-4 flex gap-2">
+      <BaseButton
+        variant="secondary"
+        :disabled="!taskStore.tasks.length || bulkLoading"
+        :loading="bulkLoading"
+        @click="handleMarkAllDone"
+      >
+        Mark all as done
+      </BaseButton>
     </div>
 
     <ErrorAlert v-if="taskStore.error" :message="taskStore.error" class="mb-4" @dismiss="taskStore.error = null" />
