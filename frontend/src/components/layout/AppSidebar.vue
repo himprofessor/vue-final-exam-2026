@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
 
 const links = [
   { name: 'dashboard', label: 'Dashboard', to: '/dashboard', icon: 'M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25'  },
   { name: 'tasks', label: 'Tasks', to: '/tasks',  icon: 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z'  },
   { name: 'categories', label: 'Categories', to: '/categories',     icon: 'M2.25 6.75c0-.621.504-1.125 1.125-1.125h3.375c.621 0 1.125.504 1.125 1.125v1.5h1.5a3.375 3.375 0 013.375 3.375v1.5h1.5a3.375 3.375 0 013.375 3.375v1.5c0 .621-.504 1.125-1.125 1.125H3.375A1.125 1.125 0 012.25 20.25V6.75z' },
+]
+
+const adminLinks = [
+  { name: 'admin-tasks', label: 'All Tasks (Admin)', to: '/admin/tasks', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
 ]
 </script>
 
@@ -29,6 +36,22 @@ const links = [
         </svg>
         {{ link.label }}
       </RouterLink>
+      <template v-if="authStore.user?.role === 'admin'">
+        <div class="my-2 border-t border-gray-200" />
+        <p class="px-3 text-xs font-semibold uppercase text-gray-400">Admin</p>
+        <RouterLink
+          v-for="link in adminLinks"
+          :key="link.name"
+          :to="link.to"
+          class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
+          active-class="bg-primary-50 text-primary-700"
+        >
+          <svg class="h-5 w-5 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" :d="link.icon" />
+          </svg>
+          {{ link.label }}
+        </RouterLink>
+      </template>
     </nav>
   </aside>
 <!-- Mobile Bottom Navigation -->
@@ -40,7 +63,19 @@ const links = [
       class="flex flex-1 flex-col items-center justify-center gap-1 text-xs font-medium text-gray-600"
       active-class="text-primary-600"
     >
-      <!-- Mobile SVG Icon -->
+      <svg class="h-6 w-6 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" :d="link.icon" />
+      </svg>
+      {{ link.label }}
+    </RouterLink>
+    <RouterLink
+      v-if="authStore.user?.role === 'admin'"
+      v-for="link in adminLinks"
+      :key="link.name"
+      :to="link.to"
+      class="flex flex-1 flex-col items-center justify-center gap-1 text-xs font-medium text-gray-600"
+      active-class="text-primary-600"
+    >
       <svg class="h-6 w-6 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
         <path stroke-linecap="round" stroke-linejoin="round" :d="link.icon" />
       </svg>

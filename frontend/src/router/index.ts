@@ -37,6 +37,12 @@ const router = createRouter({
           name: 'categories',
           component: () => import('@/views/CategoriesView.vue'),
         },
+        {
+          path: 'admin/tasks',
+          name: 'admin-tasks',
+          component: () => import('@/views/AdminTasksView.vue'),
+          meta: { requiresAuth: true, requiresAdmin: true },
+        },
       ],
     },
     {
@@ -57,6 +63,10 @@ router.beforeEach((to) => {
   }
 
   if (to.meta.guestOnly && authStore.isAuthenticated) {
+    return { name: 'dashboard' }
+  }
+
+  if (to.meta.requiresAdmin && authStore.user?.role !== 'admin') {
     return { name: 'dashboard' }
   }
 })
