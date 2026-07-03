@@ -61,6 +61,7 @@ export const useTaskStore = defineStore('tasks', () => {
 
       await fetchTasks();
       return true;
+      
     } catch (err) {
       console.error('Failed to update task:', err);
       error.value = err instanceof Error ? err.message : 'Update failed';
@@ -101,18 +102,7 @@ export const useTaskStore = defineStore('tasks', () => {
     }
   }
 
-  // -----------------------------------------------------------------------
-  // TODO 4: implement setFilters(newFilters) and resetFilters()
-  //
-  // setFilters should:
-  //   - merge newFilters into filters.value
-  //   - reset filters.value.page back to 1 (whenever a filter changes,
-  //     you want to start again from page 1)
-  //   - call fetchTasks() so the table updates immediately
-  //
-  // resetFilters should restore filters.value to the default shown in
-  // the `filters` ref above, then call fetchTasks().
-  // -----------------------------------------------------------------------
+
   function setFilters(_newFilters: Partial<TaskFilters>) {
     filters.value = {
       ...filters.value,

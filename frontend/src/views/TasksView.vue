@@ -1,13 +1,4 @@
 <script setup lang="ts">
-// =====================================================================
-// Main exam page. The UI/markup here is complete, but it calls actions
-// on the tasks store (createTask/updateTask/deleteTask/setFilters/
-// resetFilters) that you still need to implement in stores/tasks.ts.
-//
-// Until those TODOs are done, creating/editing/deleting/filtering
-// tasks will fail - that's expected. Use CategoriesView.vue as your
-// reference for the exact pattern to follow.
-// =====================================================================
 import { ref, onMounted } from 'vue'
 import { useTaskStore } from '@/stores/tasks'
 import { useCategoryStore } from '@/stores/categories'
@@ -46,8 +37,6 @@ function openEditModal(task: Task) {
 }
 
 async function handleSubmit(payload: TaskPayload) {
-  // TODO (depends on stores/tasks.ts TODO 1 & 2):
-  // once createTask/updateTask are implemented, this will work as-is.
   const success = editingTask.value
     ? await taskStore.updateTask(editingTask.value.id, payload)
     : await taskStore.createTask(payload)
@@ -64,7 +53,6 @@ function askDelete(task: Task) {
 
 async function confirmDelete() {
   if (!taskToDelete.value) return
-  // TODO (depends on stores/tasks.ts TODO 3): implement deleteTask first.
   const success = await taskStore.deleteTask(taskToDelete.value.id)
   if (success) {
     isConfirmOpen.value = false
@@ -76,8 +64,6 @@ function handleStatusChange(id: number, status: TaskStatus) {
   taskStore.updateTaskStatus(id, status)
 }
 
-// TODO (depends on stores/tasks.ts TODO 4): implement setFilters/resetFilters
-// so these actually re-fetch the list from the API.
 function handleStatusFilter(value: string) {
   taskStore.setFilters({ status: value as TaskStatus | '' })
 }
@@ -98,6 +84,9 @@ const statusFilterOptions = [
 </script>
 
 <template>
+
+
+
   <div>
     <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
