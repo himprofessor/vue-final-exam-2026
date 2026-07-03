@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// This form component is fully wired up on the UI side. It emits a
-// clean TaskPayload on submit - your job (see stores/tasks.ts TODOs)
-// is to make sure something actually handles that payload end-to-end.
 import { ref, watch } from 'vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
@@ -72,20 +69,33 @@ function handleSubmit() {
 
 <template>
   <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
-    <BaseInput v-model="title" label="Title" placeholder="e.g. Finish exam project" required :error="titleError" />
+    <BaseInput
+      v-model="title"
+      label="Title"
+      placeholder="e.g. Finish exam project"
+      required
+      :error="titleError"
+      :disabled="loading"
+    />
 
     <div>
       <label class="mb-1 block text-sm font-medium text-gray-700">Description</label>
-      <textarea v-model="description" rows="3" class="input-field" placeholder="Optional details..." />
+      <textarea
+        v-model="description"
+        rows="3"
+        class="input-field"
+        placeholder="Optional details..."
+        :disabled="loading"
+      />
     </div>
 
-    <div class="grid grid-cols-2 gap-4">
-      <BaseSelect v-model="status" label="Status" :options="statusOptions" />
-      <BaseSelect v-model="priority" label="Priority" :options="priorityOptions" />
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <BaseSelect v-model="status" label="Status" :options="statusOptions" :disabled="loading" />
+      <BaseSelect v-model="priority" label="Priority" :options="priorityOptions" :disabled="loading" />
     </div>
 
-    <div class="grid grid-cols-2 gap-4">
-      <BaseInput v-model="dueDate" type="date" label="Due date" />
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <BaseInput v-model="dueDate" type="date" label="Due date" :disabled="loading" />
       <BaseSelect
         v-model="categoryId"
         label="Category"
@@ -94,8 +104,8 @@ function handleSubmit() {
       />
     </div>
 
-    <div class="mt-2 flex justify-end gap-3">
-      <BaseButton variant="secondary" type="button" @click="$emit('cancel')">Cancel</BaseButton>
+    <div class="mt-2 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <BaseButton variant="secondary" type="button" :disabled="loading" @click="$emit('cancel')">Cancel</BaseButton>
       <BaseButton type="submit" :loading="loading">Save Task</BaseButton>
     </div>
   </form>

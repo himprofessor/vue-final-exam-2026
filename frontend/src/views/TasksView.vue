@@ -1,14 +1,5 @@
 <script setup lang="ts">
-// =====================================================================
-// Main exam page. The UI/markup here is complete, but it calls actions
-// on the tasks store (createTask/updateTask/deleteTask/setFilters/
-// resetFilters) that you still need to implement in stores/tasks.ts.
-//
-// Until those TODOs are done, creating/editing/deleting/filtering
-// tasks will fail - that's expected. Use CategoriesView.vue as your
-// reference for the exact pattern to follow.
-// =====================================================================
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useTaskStore } from '@/stores/tasks'
 import { useCategoryStore } from '@/stores/categories'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -46,8 +37,6 @@ function openEditModal(task: Task) {
 }
 
 async function handleSubmit(payload: TaskPayload) {
-  // TODO (depends on stores/tasks.ts TODO 1 & 2):
-  // once createTask/updateTask are implemented, this will work as-is.
   const success = editingTask.value
     ? await taskStore.updateTask(editingTask.value.id, payload)
     : await taskStore.createTask(payload)
@@ -64,7 +53,6 @@ function askDelete(task: Task) {
 
 async function confirmDelete() {
   if (!taskToDelete.value) return
-  // TODO (depends on stores/tasks.ts TODO 3): implement deleteTask first.
   const success = await taskStore.deleteTask(taskToDelete.value.id)
   if (success) {
     isConfirmOpen.value = false
@@ -76,8 +64,6 @@ function handleStatusChange(id: number, status: TaskStatus) {
   taskStore.updateTaskStatus(id, status)
 }
 
-// TODO (depends on stores/tasks.ts TODO 4): implement setFilters/resetFilters
-// so these actually re-fetch the list from the API.
 function handleStatusFilter(value: string) {
   taskStore.setFilters({ status: value as TaskStatus | '' })
 }
@@ -89,7 +75,6 @@ function handleCategoryFilter(value: string) {
 function goToPage(page: number) {
   taskStore.setFilters({ page })
 }
-
 const statusFilterOptions = [
   { value: 'todo', label: 'To Do' },
   { value: 'in_progress', label: 'In Progress' },
@@ -104,21 +89,29 @@ const statusFilterOptions = [
         <h1 class="text-2xl font-semibold text-gray-900">Tasks</h1>
         <p class="text-sm text-gray-500">Manage and track all of your tasks.</p>
       </div>
-      <BaseButton @click="openCreateModal">+ New Task</BaseButton>
+      <BaseButton :disabled="taskStore.loading" @click="openCreateModal">+ New Task</BaseButton>
     </div>
 
     <!-- Filters -->
-    <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <BaseInput
+        :model-value="taskStore.filters.search || ''"
+        placeholder="Search tasks"
+        :disabled="taskStore.loading"
+        @update:model-value="handleSearchFilter"
+      />
       <BaseSelect
         :model-value="taskStore.filters.status || ''"
         placeholder="All statuses"
         :options="statusFilterOptions"
+        :disabled="taskStore.loading"
         @update:model-value="handleStatusFilter"
       />
       <BaseSelect
         :model-value="taskStore.filters.category_id || ''"
         placeholder="All categories"
         :options="categoryStore.categories.map((c) => ({ value: c.id, label: c.name }))"
+        :disabled="taskStore.loading || categoryStore.loading"
         @update:model-value="handleCategoryFilter"
       />
     </div>
@@ -126,41 +119,53 @@ const statusFilterOptions = [
     <ErrorAlert v-if="taskStore.error" :message="taskStore.error" class="mb-4" @dismiss="taskStore.error = null" />
 
     <LoadingSpinner v-if="taskStore.loading && !taskStore.tasks.length" label="Loading tasks..." />
+    <template v-else>
+      <div v-if="taskStore.loading" class="mb-3 flex items-center gap-2 text-sm text-gray-500">
+        <svg class="h-4 w-4 animate-spin text-primary-600" viewBox="0 0 24 24" fill="none">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+        </svg>
+        <span>Refreshing tasks...</span>
+      </div>
 
-    <EmptyState
-      v-else-if="!taskStore.tasks.length"
-      title="No tasks found"
-      message="Create a task or adjust your filters."
-    >
-      <template #action>
-        <BaseButton @click="openCreateModal">+ New Task</BaseButton>
-      </template>
-    </EmptyState>
+      <EmptyState
+        v-if="!taskStore.error && !taskStore.tasks.length"
+        :title="emptyStateTitle"
+        :message="emptyStateMessage"
+      >
+        <template #action>
+          <BaseButton v-if="hasActiveFilters" variant="secondary" @click="resetFilters">Reset Filters</BaseButton>
+          <BaseButton v-else @click="openCreateModal">+ New Task</BaseButton>
+        </template>
+      </EmptyState>
 
-    <div v-else class="card overflow-x-auto">
-      <table class="w-full text-left">
-        <thead class="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
-          <tr>
-            <th class="px-4 py-3 font-medium">Title</th>
-            <th class="px-4 py-3 font-medium">Category</th>
-            <th class="px-4 py-3 font-medium">Priority</th>
-            <th class="px-4 py-3 font-medium">Status</th>
-            <th class="px-4 py-3 font-medium">Due</th>
-            <th class="px-4 py-3 font-medium text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <TaskRow
-            v-for="task in taskStore.tasks"
-            :key="task.id"
-            :task="task"
-            @edit="openEditModal"
-            @delete="askDelete"
-            @status-change="handleStatusChange"
-          />
-        </tbody>
-      </table>
-    </div>
+      <div v-else-if="taskStore.tasks.length" class="card overflow-x-auto">
+        <table class="w-full min-w-[900px] text-left">
+          <thead class="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+            <tr>
+              <th class="px-4 py-3 font-medium">Title</th>
+              <th class="px-4 py-3 font-medium">Category</th>
+              <th class="px-4 py-3 font-medium">Priority</th>
+              <th class="px-4 py-3 font-medium">Owner</th>
+              <th class="px-4 py-3 font-medium">Status</th>
+              <th class="px-4 py-3 font-medium">Due</th>
+              <th class="px-4 py-3 font-medium text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <TaskRow
+              v-for="task in taskStore.tasks"
+              :key="task.id"
+              :task="task"
+              :disabled="taskStore.loading"
+              @edit="openEditModal"
+              @delete="askDelete"
+              @status-change="handleStatusChange"
+            />
+          </tbody>
+        </table>
+      </div>
+    </template>
 
     <!-- Pagination -->
     <div v-if="taskStore.pagination.totalPages > 1" class="mt-4 flex items-center justify-between text-sm text-gray-500">
@@ -168,14 +173,14 @@ const statusFilterOptions = [
       <div class="flex gap-2">
         <BaseButton
           variant="secondary"
-          :disabled="taskStore.pagination.page <= 1"
+          :disabled="taskStore.loading || taskStore.pagination.page <= 1"
           @click="goToPage(taskStore.pagination.page - 1)"
         >
           Previous
         </BaseButton>
         <BaseButton
           variant="secondary"
-          :disabled="taskStore.pagination.page >= taskStore.pagination.totalPages"
+          :disabled="taskStore.loading || taskStore.pagination.page >= taskStore.pagination.totalPages"
           @click="goToPage(taskStore.pagination.page + 1)"
         >
           Next

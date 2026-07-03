@@ -4,7 +4,7 @@
 import BaseBadge from '@/components/ui/BaseBadge.vue'
 import type { Task, TaskStatus } from '@/types'
 
-defineProps<{ task: Task }>()
+withDefaults(defineProps<{ task: Task; disabled?: boolean }>(), { disabled: false })
 
 const emit = defineEmits<{
   (e: 'edit', task: Task): void
@@ -36,24 +36,32 @@ const statusLabel: Record<TaskStatus, string> = {
       <span v-else class="text-xs text-gray-400">No category</span>
     </td>
     <td class="px-4 py-3">
-      <BaseBadge :text="task.priority" :color="priorityColor[task.priority]" />
+      <BaseBadge :text="priorityLabel[task.priority]" :color="priorityColor[task.priority]" />
     </td>
     <td class="px-4 py-3">
       <select
-        class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-primary-500"
+        class="rounded-lg border border-gray-300 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
         :value="task.status"
         @change="emit('status-change', task.id, ($event.target as HTMLSelectElement).value as TaskStatus)"
       >
         <option v-for="(label, value) in statusLabel" :key="value" :value="value">{{ label }}</option>
       </select>
     </td>
-    <td class="px-4 py-3 text-sm text-gray-500">{{ task.due_date || '—' }}</td>
+    <td class="px-4 py-3 text-sm text-gray-500">{{ task.due_date || 'No due date' }}</td>
     <td class="px-4 py-3">
       <div class="flex justify-end gap-2">
-        <button class="text-sm font-medium text-primary-600 hover:text-primary-700" @click="emit('edit', task)">
+        <button
+          class="text-sm font-medium text-primary-600 hover:text-primary-700 disabled:cursor-not-allowed disabled:text-gray-400"
+          :disabled="disabled"
+          @click="emit('edit', task)"
+        >
           Edit
         </button>
-        <button class="text-sm font-medium text-red-600 hover:text-red-700" @click="emit('delete', task)">
+        <button
+          class="text-sm font-medium text-red-600 hover:text-red-700 disabled:cursor-not-allowed disabled:text-gray-400"
+          :disabled="disabled"
+          @click="emit('delete', task)"
+        >
           Delete
         </button>
       </div>
