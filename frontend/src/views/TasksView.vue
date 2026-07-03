@@ -13,7 +13,6 @@ import EmptyState from '@/components/ui/EmptyState.vue'
 import ErrorAlert from '@/components/ui/ErrorAlert.vue'
 import TaskForm from '@/components/tasks/TaskForm.vue'
 import TaskRow from '@/components/tasks/TaskRow.vue'
-import { taskService } from '@/services/taskService'
 import type { Task, TaskPayload, TaskStatus, TaskFilters } from '@/types'
 
 const taskStore = useTaskStore()
@@ -26,7 +25,6 @@ const editingTask = ref<Task | null>(null)
 const isConfirmOpen = ref(false)
 const taskToDelete = ref<Task | null>(null)
 const searchInput = ref('')
-const bulkLoading = ref(false)
 
 onMounted(() => {
   const q = route.query
@@ -124,17 +122,11 @@ function handleSortChange(sortBy: string) {
 }
 
 async function handleMarkAllDone() {
-  bulkLoading.value = true
-  try {
-    await taskService.bulkMarkDone({
-      status: taskStore.filters.status,
-      category_id: taskStore.filters.category_id ? String(taskStore.filters.category_id) : undefined,
-      search: taskStore.filters.search,
-    })
-    await taskStore.fetchTasks()
-  } finally {
-    bulkLoading.value = false
-  }
+  await taskStore.bulkMarkDone({
+    status: taskStore.filters.status || undefined,
+    category_id: taskStore.filters.category_id ? String(taskStore.filters.category_id) : undefined,
+    search: taskStore.filters.search || undefined,
+  })
 }
 
 function goToPage(page: number) {
@@ -204,8 +196,8 @@ const sortOptions = [
     <div class="mb-4 flex gap-2">
       <BaseButton
         variant="secondary"
-        :disabled="!taskStore.tasks.length || bulkLoading"
-        :loading="bulkLoading"
+        :disabled="!taskStore.tasks.length"
+        :loading="taskStore.loading"
         @click="handleMarkAllDone"
       >
         Mark all as done

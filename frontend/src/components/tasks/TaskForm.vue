@@ -1,7 +1,5 @@
 <script setup lang="ts">
-// This form component is fully wired up on the UI side. It emits a
-// clean TaskPayload on submit - your job (see stores/tasks.ts TODOs)
-// is to make sure something actually handles that payload end-to-end.
+// Task form - emits a clean TaskPayload on submit.
 import { ref, watch } from 'vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'

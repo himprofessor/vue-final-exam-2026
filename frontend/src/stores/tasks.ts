@@ -1,16 +1,16 @@
 // =====================================================================
-// Tasks store - THIS IS YOUR MAIN EXAM TASK.
-//
-// The `categories` store (stores/categories.ts) is a complete working
-// example. This file follows the exact same pattern, but several
-// actions are left as TODOs for you to finish.
-//
-// Read stores/categories.ts FIRST if you're not sure where to start.
+// Tasks store - manages task CRUD, filtering, pagination, and bulk actions.
 // =====================================================================
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { taskService } from '@/services/taskService'
 import type { Task, TaskPayload, TaskFilters, Pagination, TaskStatus } from '@/types'
+
+interface BulkFilters {
+  status?: string
+  category_id?: string
+  search?: string
+}
 
 export const useTaskStore = defineStore('tasks', () => {
   // ---- state -----------------------------------------------------------
@@ -23,7 +23,6 @@ export const useTaskStore = defineStore('tasks', () => {
 
   // ---- actions -----------------------------------------------------------
 
-  // Fully implemented - use this as your reference for the TODOs below.
   async function fetchTasks() {
     loading.value = true
     error.value = null
@@ -38,26 +37,36 @@ export const useTaskStore = defineStore('tasks', () => {
     }
   }
 
-  // Done1: implement createTask(payload)
+  async function fetchAllTasks() {
+    loading.value = true
+    error.value = null
+    try {
+      const { data } = await taskService.getAll({ limit: 999, page: 1, sort_by: '', sort_order: 'desc' })
+      tasks.value = data.data.tasks
+      pagination.value = data.data.pagination
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to load tasks.'
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function createTask(payload: TaskPayload) {
     loading.value = true
     error.value = null
-    try{
+    try {
       await taskService.create(payload)
-      // Mitigates Mistake #2 & #5: Always re-fetch clean state wholesale
       await fetchTasks()
       return true
-    } catch(err: any) {
+    } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create task'
       return false
     } finally {
-        loading.value = false
+      loading.value = false
     }
   }
 
   async function updateTask(_id: number, _payload: TaskPayload) {
-    // Done 2: replace this with a real implementation
-
     loading.value = true
     error.value = null
     try {
@@ -73,7 +82,6 @@ export const useTaskStore = defineStore('tasks', () => {
   }
 
   async function deleteTask(_id: number) {
-    // Done 3: implement deleteTask(id)
     loading.value = true
     error.value = null
     try {
@@ -101,10 +109,24 @@ export const useTaskStore = defineStore('tasks', () => {
       loading.value = false
     }
   }
- // Done 4: implement setFilters(newFilters) and resetFilters()
+
+  async function bulkMarkDone(filters: BulkFilters) {
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.bulkMarkDone(filters)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to mark tasks as done.'
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
   function setFilters(_newFilters: Partial<TaskFilters>) {
-        // Mitigates Mistake #3: Hard reset page parameters back to 1 when changing filtering options
-    const targetPage =_newFilters.page !== undefined ? _newFilters.page : 1
+    const targetPage = _newFilters.page !== undefined ? _newFilters.page : 1
     filters.value = {
       ...filters.value,
       ..._newFilters,
@@ -134,10 +156,12 @@ export const useTaskStore = defineStore('tasks', () => {
     loading,
     error,
     fetchTasks,
+    fetchAllTasks,
     createTask,
     updateTask,
     deleteTask,
     updateTaskStatus,
+    bulkMarkDone,
     setFilters,
     resetFilters,
   }

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// Demonstrates parent <-> child component communication:
-// props flow down (task), events flow up (edit/delete/status-change).
 import BaseBadge from '@/components/ui/BaseBadge.vue'
 import type { Task, TaskStatus } from '@/types'
 
