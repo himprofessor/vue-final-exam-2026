@@ -1,9 +1,9 @@
 const app = require('./app');
 const { testConnection } = require('./config/db');
-require('dotenv').config();
 
 const PORT = process.env.PORT || 5000;
 
+// Run the sanity check on boot
 testConnection();
 
 app.listen(PORT, () => {

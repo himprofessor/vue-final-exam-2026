@@ -6,6 +6,13 @@
 // =====================================================================
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
+import type { Router } from 'vue-router'
+
+let _router: Router | null = null
+
+export function setRouter(router: Router) {
+  _router = router
+}
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
@@ -31,6 +38,9 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       const authStore = useAuthStore()
       authStore.logout()
+      if (_router) {
+        _router.push({ name: 'login' })
+      }
     }
     return Promise.reject(error)
   }
