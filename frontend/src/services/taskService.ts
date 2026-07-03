@@ -36,7 +36,7 @@ export const taskService = {
 
   // TODO: implement `remove`.
   // Hint: DELETE `/tasks/${id}`.
-  remove(_id: number) {
-    throw new Error('TODO: implement taskService.remove')
+  remove(id: number) {
+    return api.delete<ApiResponse<null>>(`/tasks/${id}`)
   },
 }

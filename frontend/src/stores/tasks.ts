@@ -57,7 +57,7 @@ export const useTaskStore = defineStore('tasks', () => {
       error.value = null
     try {
       await taskService.create(payload)
-      await fetchTasks() // re-fetch so the list (and any task dropdowns) stay in sync
+      await fetchTasks() 
       return true
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create task.'
@@ -91,9 +91,19 @@ export const useTaskStore = defineStore('tasks', () => {
   // Same pattern, but call taskService.remove(id). No payload needed.
   // Remember: this should also re-fetch the list afterwards.
   // -----------------------------------------------------------------------
-  async function deleteTask(_id: number) {
-    // TODO: replace this with a real implementation
-    throw new Error('TODO: implement deleteTask in stores/tasks.ts')
+  async function deleteTask(id: number) {
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.remove(id)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to delete task.'
+      return false
+    } finally {
+      loading.value = false
+    }
   }
 
   // Provided for you: a small "quick toggle" action so you can see a
@@ -125,12 +135,17 @@ export const useTaskStore = defineStore('tasks', () => {
   // resetFilters should restore filters.value to the default shown in
   // the `filters` ref above, then call fetchTasks().
   // -----------------------------------------------------------------------
-  function setFilters(_newFilters: Partial<TaskFilters>) {
+  function setFilters(newFilters: Partial<TaskFilters>) {
     // TODO: replace this with a real implementation
+    newFilters = filters.value;
+    newFilters.page = 1;
+    fetchTasks();
   }
 
   function resetFilters() {
     // TODO: replace this with a real implementation
+    filters.value;
+    
   }
 
   return {
