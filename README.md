@@ -151,7 +151,7 @@ The API starts on `http://localhost:5000` by default. Visit `http://localhost:50
 ```bash
 cd frontend
 npm install
-cp .env.example .env
+
 # edit .env if your backend runs on a different URL
 npm run dev
 ```
