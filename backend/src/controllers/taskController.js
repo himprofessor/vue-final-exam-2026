@@ -2,11 +2,11 @@ const catchAsync = require('../middleware/catchAsync');
 const AppError = require('../utils/AppError');
 const taskModel = require('../models/taskModel');
 
-// GET /api/tasks?status=&category_id=&search=&page=&limit=
+// GET /api/tasks?status=&category_id=&search=&page=&limit=&sort_by=&sort_order=
 // Tasks are always scoped to the logged-in user (req.user.id) - this is
 // the "users -> tasks" one-to-many relationship in action.
 const getAll = catchAsync(async (req, res) => {
-  const { status, category_id, search, page, limit } = req.query;
+  const { status, category_id, search, page, limit, sort_by, sort_order } = req.query;
 
   const result = await taskModel.findAllForUser(req.user.id, {
     status,
@@ -14,6 +14,8 @@ const getAll = catchAsync(async (req, res) => {
     search,
     page: page || 1,
     limit: limit || 10,
+    sortBy: sort_by,
+    sortOrder: sort_order,
   });
 
   res.status(200).json({
@@ -92,4 +94,50 @@ const remove = catchAsync(async (req, res, next) => {
   res.status(200).json({ success: true, message: 'Task deleted' });
 });
 
-module.exports = { getAll, getOne, create, update, updateStatus, remove };
+// GET /api/tasks/all (admin only - lists tasks across all users)
+const getAllAdmin = catchAsync(async (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return next(new AppError('Admin access required', 403));
+  }
+
+  const { status, category_id, search, user_id, page, limit, sort_by, sort_order } = req.query;
+
+  const result = await taskModel.findAllForAdmin({
+    status,
+    categoryId: category_id,
+    search,
+    userId: user_id,
+    page: page || 1,
+    limit: limit || 10,
+    sortBy: sort_by,
+    sortOrder: sort_order,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: {
+      tasks: result.tasks,
+      pagination: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: Math.ceil(result.total / result.limit),
+      },
+    },
+  });
+});
+
+// PATCH /api/tasks/bulk/done - marks all currently-filtered tasks as 'done'
+const bulkMarkDone = catchAsync(async (req, res) => {
+  const { status: currentStatus, category_id: currentCategoryId, search: currentSearch } = req.body;
+
+  await taskModel.bulkMarkDone(req.user.id, {
+    currentStatus: currentStatus || null,
+    currentCategoryId: currentCategoryId || null,
+    currentSearch: currentSearch || null,
+  });
+
+  res.status(200).json({ success: true, message: 'Tasks updated' });
+});
+
+module.exports = { getAll, getOne, create, update, updateStatus, remove, getAllAdmin, bulkMarkDone };

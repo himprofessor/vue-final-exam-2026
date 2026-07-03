@@ -18,6 +18,8 @@ const taskValidationRules = [
 ];
 
 router.get('/', taskController.getAll);
+router.get('/all', taskController.getAllAdmin);
+router.patch('/bulk/done', taskController.bulkMarkDone);
 router.get('/:id', taskController.getOne);
 router.post('/', taskValidationRules, validate, taskController.create);
 router.put('/:id', taskValidationRules, validate, taskController.update);
