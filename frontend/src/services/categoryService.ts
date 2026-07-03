@@ -21,3 +21,6 @@ export const categoryService = {
     return api.delete<ApiResponse<null>>(`/categories/${id}`)
   },
 }
+
+
+
