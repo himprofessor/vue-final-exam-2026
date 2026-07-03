@@ -7,34 +7,51 @@
 //
 // Read stores/categories.ts FIRST if you're not sure where to start.
 // =====================================================================
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import { taskService } from '@/services/taskService'
-import type { Task, TaskPayload, TaskFilters, Pagination, TaskStatus } from '@/types'
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import { taskService } from "@/services/taskService";
+import type {
+  Task,
+  TaskPayload,
+  TaskFilters,
+  Pagination,
+  TaskStatus,
+} from "@/types";
 
-export const useTaskStore = defineStore('tasks', () => {
+export const useTaskStore = defineStore("tasks", () => {
   // ---- state -----------------------------------------------------------
-  const tasks = ref<Task[]>([])
-  const currentTask = ref<Task | null>(null)
-  const pagination = ref<Pagination>({ total: 0, page: 1, limit: 10, totalPages: 0 })
-  const filters = ref<TaskFilters>({ status: '', category_id: '', search: '', page: 1, limit: 10 })
-  const loading = ref(false)
-  const error = ref<string | null>(null)
+  const tasks = ref<Task[]>([]);
+  const currentTask = ref<Task | null>(null);
+  const pagination = ref<Pagination>({
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 0,
+  });
+  const filters = ref<TaskFilters>({
+    status: "",
+    category_id: "",
+    search: "",
+    page: 1,
+    limit: 10,
+  });
+  const loading = ref(false);
+  const error = ref<string | null>(null);
 
   // ---- actions -----------------------------------------------------------
 
   // Fully implemented - use this as your reference for the TODOs below.
   async function fetchTasks() {
-    loading.value = true
-    error.value = null
+    loading.value = true;
+    error.value = null;
     try {
-      const { data } = await taskService.getAll(filters.value)
-      tasks.value = data.data.tasks
-      pagination.value = data.data.pagination
+      const { data } = await taskService.getAll(filters.value);
+      tasks.value = data.data.tasks;
+      pagination.value = data.data.pagination;
     } catch (err: any) {
-      error.value = err.response?.data?.message || 'Failed to load tasks.'
+      error.value = err.response?.data?.message || "Failed to load tasks.";
     } finally {
-      loading.value = false
+      loading.value = false;
     }
   }
 
@@ -53,8 +70,19 @@ export const useTaskStore = defineStore('tasks', () => {
   //     calling this action knows whether to close the modal)
   // -----------------------------------------------------------------------
   async function createTask(_payload: TaskPayload) {
-    // TODO: replace this with a real implementation
-    throw new Error('TODO: implement createTask in stores/tasks.ts')
+    loading.value = true;
+    error.value = null;
+    try {
+      await taskService.create(_payload);
+      await fetchTasks();
+      return true;
+    } catch (err: any) {
+      console.log("Create taks failed:", err.response?.data || err);
+      error.value = err.response?.data?.message || "Failed to create task.";
+      return false;
+    } finally {
+      loading.value = false;
+    }
   }
 
   // -----------------------------------------------------------------------
@@ -62,8 +90,20 @@ export const useTaskStore = defineStore('tasks', () => {
   // Same pattern as createTask, but call taskService.update(id, payload).
   // -----------------------------------------------------------------------
   async function updateTask(_id: number, _payload: TaskPayload) {
-    // TODO: replace this with a real implementation
-    throw new Error('TODO: implement updateTask in stores/tasks.ts')
+    loading.value = true;
+    error.value = null;
+
+    try {
+      await taskService.update(_id, _payload);
+      await fetchTasks();
+      return true;
+    } catch (err: any) {
+      console.error("Update task failed:", err.response?.data || err);
+      error.value = err.response?.data?.message || "Failed to update task.";
+      return false;
+    } finally {
+      loading.value = false;
+    }
   }
 
   // -----------------------------------------------------------------------
@@ -72,24 +112,36 @@ export const useTaskStore = defineStore('tasks', () => {
   // Remember: this should also re-fetch the list afterwards.
   // -----------------------------------------------------------------------
   async function deleteTask(_id: number) {
-    // TODO: replace this with a real implementation
-    throw new Error('TODO: implement deleteTask in stores/tasks.ts')
+    loading.value = true;
+    error.value = null;
+    try {
+      await taskService.remove(_id);
+      await fetchTasks();
+      return true;
+    } catch (err: any) {
+      console.error("Delete task failed:", err);
+      error.value = err.response?.data?.message || "Failed to deleted task.";
+      return false;
+    } finally {
+      loading.value = false;
+    }
   }
 
   // Provided for you: a small "quick toggle" action so you can see a
   // working example of updating one field without opening the full form.
   async function updateTaskStatus(id: number, status: TaskStatus) {
-    loading.value = true
-    error.value = null
+    loading.value = true;
+    error.value = null;
     try {
-      await taskService.updateStatus(id, status)
-      await fetchTasks()
-      return true
+      await taskService.updateStatus(id, status);
+      await fetchTasks();
+      return true;
     } catch (err: any) {
-      error.value = err.response?.data?.message || 'Failed to update task status.'
-      return false
+      error.value =
+        err.response?.data?.message || "Failed to update task status.";
+      return false;
     } finally {
-      loading.value = false
+      loading.value = false;
     }
   }
 
@@ -106,11 +158,42 @@ export const useTaskStore = defineStore('tasks', () => {
   // the `filters` ref above, then call fetchTasks().
   // -----------------------------------------------------------------------
   function setFilters(_newFilters: Partial<TaskFilters>) {
-    // TODO: replace this with a real implementation
+    filters.value = {
+      ...filters.value,
+      ..._newFilters,
+      page: 1,
+    };
+    fetchTasks();
+  }
+
+  // I try to research and do bunus 
+
+  async function markAllFiltered() {
+    loading.value = true;
+    error.value = null;
+    try {
+      const updatePromise = tasks.value.map(task => taskService.updateStatus(task.id, 'done'));
+      await Promise.all(updatePromise);
+      await fetchTasks();
+      return true;
+    } catch(err: any) {
+      error.value = err.response?.data?.message || "Failed bulk update.";
+      return false;
+    }
+    finally{
+      loading.value = false
+    }
   }
 
   function resetFilters() {
-    // TODO: replace this with a real implementation
+    filters.value = {
+      status: "",
+      category_id: "",
+      search: "",
+      page: 1,
+      limit: 10,
+    };
+    fetchTasks();
   }
 
   return {
@@ -127,5 +210,5 @@ export const useTaskStore = defineStore('tasks', () => {
     updateTaskStatus,
     setFilters,
     resetFilters,
-  }
-})
+  };
+});
