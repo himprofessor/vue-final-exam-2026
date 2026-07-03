@@ -2,9 +2,6 @@ const catchAsync = require('../middleware/catchAsync');
 const AppError = require('../utils/AppError');
 const taskModel = require('../models/taskModel');
 
-// GET /api/tasks?status=&category_id=&search=&page=&limit=
-// Tasks are always scoped to the logged-in user (req.user.id) - this is
-// the "users -> tasks" one-to-many relationship in action.
 const getAll = catchAsync(async (req, res) => {
   const { status, category_id, search, page, limit } = req.query;
 
@@ -30,14 +27,12 @@ const getAll = catchAsync(async (req, res) => {
   });
 });
 
-// GET /api/tasks/:id
 const getOne = catchAsync(async (req, res, next) => {
   const task = await taskModel.findByIdForUser(req.params.id, req.user.id);
   if (!task) return next(new AppError('Task not found', 404));
   res.status(200).json({ success: true, data: { task } });
 });
 
-// POST /api/tasks
 const create = catchAsync(async (req, res) => {
   const { title, description, status, priority, due_date, category_id } = req.body;
 
@@ -54,7 +49,6 @@ const create = catchAsync(async (req, res) => {
   res.status(201).json({ success: true, message: 'Task created', data: { task } });
 });
 
-// PUT /api/tasks/:id
 const update = catchAsync(async (req, res, next) => {
   const existing = await taskModel.findByIdForUser(req.params.id, req.user.id);
   if (!existing) return next(new AppError('Task not found', 404));

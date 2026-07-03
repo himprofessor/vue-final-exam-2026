@@ -1,80 +1,60 @@
-// =====================================================================
-// Shared TypeScript types
-// Keeping these in one file makes it easy to see the full data model
-// of the app at a glance, and lets every store/component import from
-// the same source of truth.
-// =====================================================================
 
 export interface User {
-  id: number
-  name: string
-  email: string
-  role: 'admin' | 'user'
-  created_at: string
+  id: number;
+  name: string;
+  email: string;
+  role: 'admin' | 'user';
 }
 
 export interface Category {
-  id: number
-  name: string
-  color: string
-  created_at: string
+  id: number;
+  name: string;
+  color: string;
 }
 
-export type TaskStatus = 'todo' | 'in_progress' | 'done'
-export type TaskPriority = 'low' | 'medium' | 'high'
+export type TaskStatus = 'todo' | 'in_progress' | 'done';
+export type TaskPriority = 'low' | 'medium' | 'high';
 
-// This is the shape returned by the API (it comes from a SQL JOIN,
-// so it includes denormalized fields like category_name / owner_name
-// in addition to the raw foreign keys).
 export interface Task {
-  id: number
-  title: string
-  description: string | null
-  status: TaskStatus
-  priority: TaskPriority
-  due_date: string | null
-  user_id: number
-  category_id: number | null
-  category_name: string | null
-  category_color: string | null
-  owner_name: string | null
-  created_at: string
-  updated_at: string
+  id: number;
+  title: string;
+  description: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  due_date: string | null;
+  category_id: number | null;
+  user_id: number;
+  category_name: string | null;
+  category_color: string | null;
+  owner_name: string;
 }
 
-// Payload shape used when creating/updating a task from a form.
 export interface TaskPayload {
-  title: string
-  description?: string
-  status?: TaskStatus
-  priority?: TaskPriority
-  due_date?: string | null
-  category_id?: number | null
-}
-
-export interface CategoryPayload {
-  name: string
-  color?: string
-}
-
-export interface Pagination {
-  total: number
-  page: number
-  limit: number
-  totalPages: number
+  title: string;
+  description?: string;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  due_date?: string | null;
+  category_id?: number | null;
 }
 
 export interface TaskFilters {
-  status?: TaskStatus | ''
-  category_id?: number | ''
-  search?: string
-  page?: number
-  limit?: number
+  status?: TaskStatus;
+  category_id?: number;
+  search?: string;
+  page?: number;
+  limit?: number;
 }
 
-// Generic wrapper matching the backend's { success, message, data } envelope
+export interface Pagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export interface ApiResponse<T> {
-  success: boolean
-  message?: string
-  data: T
+  success: boolean;
+  message?: string;
+  data: T;
 }

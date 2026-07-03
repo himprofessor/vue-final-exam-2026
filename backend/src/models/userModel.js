@@ -1,9 +1,3 @@
-// =====================================================================
-// User model
-// Thin data-access layer around the `users` table. Controllers should
-// never write raw SQL directly - they call these functions instead.
-// This keeps the SQL in one place and makes the controllers easy to read.
-// =====================================================================
 const { pool } = require('../config/db');
 
 async function findByEmail(email) {

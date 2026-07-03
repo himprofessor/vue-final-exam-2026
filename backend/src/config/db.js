@@ -1,8 +1,3 @@
-// =====================================================================
-// MySQL connection pool
-// We use a connection pool (instead of a single connection) so that
-// multiple requests can query the database concurrently.
-// =====================================================================
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
@@ -15,11 +10,9 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  dateStrings: true, // return DATE/DATETIME columns as strings, easier to work with in JS/TS
+  dateStrings: true, 
 });
 
-// Quick sanity check on boot so setup mistakes fail loudly instead of
-// surfacing as a confusing error on the first API request.
 async function testConnection() {
   try {
     const conn = await pool.getConnection();

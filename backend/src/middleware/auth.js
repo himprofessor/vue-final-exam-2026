@@ -1,10 +1,5 @@
 const { verifyToken } = require('../utils/jwt');
 const AppError = require('../utils/AppError');
-
-// Protects routes by requiring a valid "Authorization: Bearer <token>" header.
-// On success, attaches the decoded payload to req.user so downstream
-// controllers know WHO is making the request (used to scope tasks to
-// their owner).
 function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
 

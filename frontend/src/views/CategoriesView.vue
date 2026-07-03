@@ -1,8 +1,4 @@
 <script setup lang="ts">
-// COMPLETE reference implementation - study this page to see how the
-// pieces fit together: store <-> service <-> API, plus loading /
-// error / empty states and a create/edit modal. You'll replicate this
-// pattern (with more fields) in TasksView.vue.
 import { ref, onMounted } from 'vue'
 import { useCategoryStore } from '@/stores/categories'
 import BaseButton from '@/components/ui/BaseButton.vue'

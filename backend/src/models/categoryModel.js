@@ -1,8 +1,6 @@
 const { pool } = require('../config/db');
 
 async function findAll() {
-  // (Bonus idea for students: add a COUNT(tasks.id) to show how many
-  // tasks use each category - a classic "relation query".)
   const [rows] = await pool.query('SELECT * FROM categories ORDER BY created_at DESC');
   return rows;
 }

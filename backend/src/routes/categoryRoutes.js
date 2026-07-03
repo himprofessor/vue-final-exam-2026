@@ -6,7 +6,6 @@ const categoryController = require('../controllers/categoryController');
 
 const router = express.Router();
 
-// All category routes require a logged-in user
 router.use(requireAuth);
 
 router.get('/', categoryController.getAll);

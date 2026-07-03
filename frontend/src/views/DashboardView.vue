@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// Fully implemented - a small read-only view that just consumes the
-// stores. Good example of using computed() to derive UI state from
-// store data without duplicating logic in the component.
 import { onMounted, computed } from 'vue'
 import { useTaskStore } from '@/stores/tasks'
 import { useCategoryStore } from '@/stores/categories'
@@ -18,7 +15,7 @@ onMounted(() => {
 })
 
 const counts = computed(() => ({
-  total: taskStore.pagination.total,
+  total: taskStore.pagination?.total || 0,
   todo: taskStore.tasks.filter((t) => t.status === 'todo').length,
   inProgress: taskStore.tasks.filter((t) => t.status === 'in_progress').length,
   done: taskStore.tasks.filter((t) => t.status === 'done').length,
@@ -26,32 +23,32 @@ const counts = computed(() => ({
 </script>
 
 <template>
-  <div>
+  <div class="p-6 max-w-6xl mx-auto space-y-6">
     <h1 class="text-2xl font-semibold text-gray-900">Welcome back, {{ authStore.user?.name }} 👋</h1>
     <p class="mb-6 text-sm text-gray-500">Here's a quick overview of your tasks.</p>
 
     <LoadingSpinner v-if="taskStore.loading" label="Loading dashboard..." />
 
     <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="card p-5">
+      <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
         <p class="text-sm text-gray-500">Total Tasks</p>
         <p class="mt-1 text-2xl font-semibold text-gray-900">{{ counts.total }}</p>
       </div>
-      <div class="card p-5">
+      <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
         <p class="text-sm text-gray-500">To Do</p>
         <p class="mt-1 text-2xl font-semibold text-gray-900">{{ counts.todo }}</p>
       </div>
-      <div class="card p-5">
+      <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
         <p class="text-sm text-gray-500">In Progress</p>
         <p class="mt-1 text-2xl font-semibold text-gray-900">{{ counts.inProgress }}</p>
       </div>
-      <div class="card p-5">
+      <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
         <p class="text-sm text-gray-500">Done</p>
         <p class="mt-1 text-2xl font-semibold text-gray-900">{{ counts.done }}</p>
       </div>
     </div>
 
-    <div class="mt-8 card p-5">
+    <div class="mt-8 bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
       <h2 class="mb-3 text-sm font-semibold text-gray-900">Categories</h2>
       <div class="flex flex-wrap gap-2">
         <span

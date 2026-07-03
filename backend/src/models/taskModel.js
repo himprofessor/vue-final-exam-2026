@@ -18,10 +18,6 @@ const BASE_SELECT = `
   LEFT JOIN categories c ON c.id = t.category_id
   LEFT JOIN users u      ON u.id = t.user_id
 `;
-
-// Supports optional filtering (status, category_id, search) and simple
-// pagination - this satisfies the "Pagination or filtering" bonus
-// requirement from the exam brief.
 async function findAllForUser(userId, { status, categoryId, search, page = 1, limit = 10 }) {
   const conditions = ['t.user_id = ?'];
   const params = [userId];

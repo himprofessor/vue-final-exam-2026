@@ -6,8 +6,6 @@ const taskController = require('../controllers/taskController');
 
 const router = express.Router();
 
-// All task routes require a logged-in user - tasks are always scoped
-// to req.user.id inside the controller/model layer.
 router.use(requireAuth);
 
 const taskValidationRules = [
