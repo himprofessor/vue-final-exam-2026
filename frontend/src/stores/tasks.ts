@@ -52,9 +52,21 @@ export const useTaskStore = defineStore('tasks', () => {
   //   - return true on success, false on failure (so the component
   //     calling this action knows whether to close the modal)
   // -----------------------------------------------------------------------
-  async function createTask(_payload: TaskPayload) {
-    // TODO: replace this with a real implementation
-    throw new Error('TODO: implement createTask in stores/tasks.ts')
+  async function createTask(_payload: TaskPayload): Promise<boolean> {
+    loading.value = true
+    error.value = null
+
+    try {
+      await taskService.create(_payload)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.message || 'Failed to create task'
+      return false
+    } finally {
+      loading.value = false
+    }
+
   }
 
   // -----------------------------------------------------------------------
@@ -62,8 +74,7 @@ export const useTaskStore = defineStore('tasks', () => {
   // Same pattern as createTask, but call taskService.update(id, payload).
   // -----------------------------------------------------------------------
   async function updateTask(_id: number, _payload: TaskPayload) {
-    // TODO: replace this with a real implementation
-    throw new Error('TODO: implement updateTask in stores/tasks.ts')
+   
   }
 
   // -----------------------------------------------------------------------
