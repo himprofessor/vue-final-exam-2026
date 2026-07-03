@@ -71,6 +71,8 @@ export interface TaskFilters {
   search?: string
   page?: number
   limit?: number
+  sort_by?: 'due_date' | 'priority' | ''
+  sort_order?: 'asc' | 'desc'
 }
 
 // Generic wrapper matching the backend's { success, message, data } envelope
