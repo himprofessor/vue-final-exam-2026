@@ -92,8 +92,21 @@ async function confirmDelete() {
     <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <div v-for="category in categoryStore.categories" :key="category.id" class="card flex items-center justify-between p-4">
         <div class="flex items-center gap-3">
-          <span class="h-3 w-3 rounded-full" :style="{ backgroundColor: category.color }" />
-          <span class="text-sm font-medium text-gray-900">{{ category.name }}</span>
+          <span class="h-3 w-3 rounded-full shrink-0" :style="{ backgroundColor: category.color }" />
+          <div class="flex flex-col">
+            <span class="text-sm font-medium text-gray-900">{{ category.name }}</span>
+            
+            <span 
+              :class="[
+                Number(category.task_count || 0) > 0 
+                  ? 'bg-blue-50 text-blue-700 border-blue-200' 
+                  : 'bg-gray-50 text-gray-500 border-gray-200',
+                'inline-flex items-center w-max px-2 py-0.5 mt-1 rounded text-xs font-medium border'
+              ]"
+            >
+              {{ Number(category.task_count || 0) }} {{ Number(category.task_count || 0) === 1 ? 'task' : 'tasks' }}
+            </span>
+          </div>
         </div>
         <div class="flex gap-3">
           <button class="text-sm font-medium text-primary-600 hover:text-primary-700" @click="openEditModal(category)">

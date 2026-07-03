@@ -18,6 +18,7 @@ export interface Category {
   name: string
   color: string
   created_at: string
+  task_count?: number
 }
 
 export type TaskStatus = 'todo' | 'in_progress' | 'done'
