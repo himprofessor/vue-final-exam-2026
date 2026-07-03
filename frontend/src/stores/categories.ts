@@ -9,6 +9,7 @@
 //   3. catch { set a friendly error message }
 //   4. finally { loading = false }
 // =====================================================================
+
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { categoryService } from '@/services/categoryService'
@@ -39,6 +40,7 @@ export const useCategoryStore = defineStore('categories', () => {
       await categoryService.create(payload)
       await fetchCategories() // re-fetch so the list (and any task dropdowns) stay in sync
       return true
+      
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Failed to create category.'
       return false

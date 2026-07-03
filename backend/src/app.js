@@ -11,6 +11,9 @@ const taskRoutes = require('./routes/taskRoutes');
 const app = express();
 
 // ---- Global middleware ------------------------------------------------
+
+// app.use(morgan('dev'));
+
 app.use(
   cors({
     origin: process.env.CLIENT_URL || 'http://localhost:5173',

@@ -78,6 +78,7 @@ function handleStatusChange(id: number, status: TaskStatus) {
 
 // TODO (depends on stores/tasks.ts TODO 4): implement setFilters/resetFilters
 // so these actually re-fetch the list from the API.
+
 function handleStatusFilter(value: string) {
   taskStore.setFilters({ status: value as TaskStatus | '' })
 }

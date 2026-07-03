@@ -7,6 +7,7 @@ async function findAll() {
   return rows;
 }
 
+
 async function findById(id) {
   const [rows] = await pool.query('SELECT * FROM categories WHERE id = ?', [id]);
   return rows[0] || null;
@@ -30,3 +31,4 @@ async function remove(id) {
 }
 
 module.exports = { findAll, findById, create, update, remove };
+
