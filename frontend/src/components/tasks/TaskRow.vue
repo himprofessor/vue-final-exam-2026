@@ -45,6 +45,7 @@ const statusLabel: Record<TaskStatus, string> = {
         @change="emit('status-change', task.id, ($event.target as HTMLSelectElement).value as TaskStatus)"
       >
         <option v-for="(label, value) in statusLabel" :key="value" :value="value">{{ label }}</option>
+        
       </select>
     </td>
     <td class="px-4 py-3 text-sm text-gray-500">{{ task.due_date || '—' }}</td>

@@ -54,6 +54,7 @@ async function handleSubmit(payload: TaskPayload) {
 
   if (success) {
     isModalOpen.value = false
+    editingTask.value = null
   }
 }
 
@@ -121,6 +122,8 @@ const statusFilterOptions = [
         :options="categoryStore.categories.map((c) => ({ value: c.id, label: c.name }))"
         @update:model-value="handleCategoryFilter"
       />
+      
+      <input type="text" placeholder="Search tasks..." class="input-field" >
     </div>
 
     <ErrorAlert v-if="taskStore.error" :message="taskStore.error" class="mb-4" @dismiss="taskStore.error = null" />
