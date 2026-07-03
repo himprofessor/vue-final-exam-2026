@@ -119,7 +119,7 @@ categories (1) ──< tasks (many)       ON DELETE SET NULL
 
 ## 6. Backend Setup
 
-```bash
+```bash  
 cd backend
 npm install
 cp .env.example .env
