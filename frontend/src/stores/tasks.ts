@@ -54,26 +54,36 @@ export const useTaskStore = defineStore('tasks', () => {
   // -----------------------------------------------------------------------
   async function createTask(payload: TaskPayload) {
     loading.value = true,
-    error.value = null
-        try {
-          await taskService.create(payload)
-          await fetchTasks() // re-fetch so the list (and any task dropdowns) stay in sync
-          return true
-        } catch (err: any) {
-          error.value = err.response?.data?.message || 'Failed to create task.'
-          return false
-        } finally {
-          loading.value = false
-        }
+      error.value = null
+    try {
+      await taskService.create(payload)
+      await fetchTasks() // re-fetch so the list (and any task dropdowns) stay in sync
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to create task.'
+      return false
+    } finally {
+      loading.value = false
+    }
   }
 
   // -----------------------------------------------------------------------
   // TODO 2: implement updateTask(id, payload)
   // Same pattern as createTask, but call taskService.update(id, payload).
   // -----------------------------------------------------------------------
-  async function updateTask(_id: number, _payload: TaskPayload) {
-    // TODO: replace this with a real implementation
-    throw new Error('TODO: implement updateTask in stores/tasks.ts')
+  async function updateTask(id: number, payload: TaskPayload) {
+    loading.value = true
+    error.value = null
+    try {
+      await taskService.update(id, payload)
+      await fetchTasks()
+      return true
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Failed to update task.'
+      return false
+    } finally {
+      loading.value = false
+    }
   }
 
   // -----------------------------------------------------------------------
