@@ -53,8 +53,8 @@ export const useTaskStore = defineStore('tasks', () => {
   //     calling this action knows whether to close the modal)
   // -----------------------------------------------------------------------
   async function createTask(payload: TaskPayload) {
-      loading.value =true
-      error.value=null
+    loading.value =true
+    error.value=null
     try{
       await taskService.create(payload)
       await fetchTasks()
@@ -78,7 +78,7 @@ export const useTaskStore = defineStore('tasks', () => {
       await fetchTasks()
       return true
     }catch (err: any) {
-      error.value = err.response?.data?.message || 'Failed to create tasks.'
+      error.value = err.response?.data?.message || 'Failed to update tasks.'
       return false
     } finally {
       loading.value = false
@@ -98,7 +98,7 @@ export const useTaskStore = defineStore('tasks', () => {
       await fetchTasks()
       return true
     }catch (err:any){
-      error.value = err.response?.data?.message || 'Failed to update tasks.'
+      error.value = err.response?.data?.message || 'Failed to delete tasks.'
       return false
     }finally{
       loading.value = false
